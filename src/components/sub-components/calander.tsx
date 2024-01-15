@@ -2,7 +2,6 @@ import Calendar from "@ericz1803/react-google-calendar";
 import { css } from "@emotion/react";
 import { Box, Typography, styled } from "@mui/material";
 
-// const API_KEY = "AIzaSyBvZ13XOMjY8--BU6WpKSPB4ntM8vg7Uhg";
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 const calendars = [
