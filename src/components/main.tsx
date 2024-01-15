@@ -25,7 +25,8 @@ const StyledMainWrapper = styled(Box)({
   "@media (max-width: 600px)": {
     backgroundSize: "260%",
     backgroundPosition: "center",
-    marginTop: "-25%"
+    marginTop: "-15%",
+    marginBottom: "2rem"
   },
 });
 

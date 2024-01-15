@@ -1,12 +1,13 @@
-import { Box, styled } from "@mui/material";
+import { Box, Skeleton, styled } from "@mui/material";
 import Navbar from "./components/navbar";
 import Main from "./components/main";
-import About from "./components/about";
-import Schedule from "./components/schedule";
-import Services from "./components/services";
-import Testimonials from "./components/testimonials";
 import Footer from "./components/footer";
-import { useRef } from "react";
+import { lazy, Suspense, useRef } from "react";
+
+const About = lazy(() => import("./components/about"));
+const Schedule = lazy(() => import("./components/schedule"));
+const Services = lazy(() => import("./components/services"));
+const Testimonials = lazy(() => import("./components/testimonials"));
 
 export default function App() {
   const aboutRef = useRef<HTMLElement>(null);
@@ -23,10 +24,16 @@ export default function App() {
         scheduleRef={scheduleRef}
       />
       <Main />
-      <About ref={aboutRef} />
-      <Services ref={servicesRef} />
-      <Testimonials ref={testimonialsRef} />
-      <Schedule ref={scheduleRef} />
+      <Suspense
+        fallback={
+          <Skeleton variant="rectangular" width={"90%"} height={"90%"} />
+        }
+      >
+        <About ref={aboutRef} />
+        <Services ref={servicesRef} />
+        <Testimonials ref={testimonialsRef} />
+        <Schedule ref={scheduleRef} />
+      </Suspense>
       <Footer />
     </StyledAppWrapper>
   );
