@@ -3,7 +3,7 @@ import Calander from "./sub-components/calander";
 import ScheduleForm from "./sub-components/schedule-form";
 import { forwardRef } from "react";
 
-const Schedule = forwardRef<HTMLElement>((props, ref) => {
+const Schedule = forwardRef<HTMLElement>((_, ref) => {
   return (
     <StyledScheduleWrapper ref={ref}>
       <StyledCustomCard>

@@ -10,8 +10,8 @@ import wax from "../assets/images/wax.png";
 import interior from "../assets/images/interior.png";
 import fullDetail from "../assets/images/full-detail.png";
 
-const Services = forwardRef<HTMLElement>((props, ref) => {
-  const [currentServices, setCurrentServices] = useState([
+const Services = forwardRef<HTMLElement>((_, ref) => {
+  const [currentServices] = useState([
     {
       name: "Exterior Detailing",
       description: "Exterior detailing description",

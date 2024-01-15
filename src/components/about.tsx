@@ -4,7 +4,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { forwardRef } from "react";
 
-const About = forwardRef<HTMLElement>((props, ref) => {
+const About = forwardRef<HTMLElement>((_, ref) => {
   return (
     <StyledAboutWrapper ref={ref}>
       <StyledCard>

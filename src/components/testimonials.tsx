@@ -41,7 +41,7 @@ const reviews = [
   },
 ];
 
-const Testimonials = forwardRef<HTMLElement>((props, ref) => {
+const Testimonials = forwardRef<HTMLElement>((_, ref) => {
   const theme = useTheme();
   const [activeReview, setActiveReview] = useState(0);
   const maxReviews = reviews.length;
