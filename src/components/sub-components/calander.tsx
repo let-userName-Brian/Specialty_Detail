@@ -38,7 +38,7 @@ const StyledCalanderWrapper = styled(Box)({
   display: "flex",
   flexDirection: "column",
   width: "100%",
-  height: "auto",
+  height: "100%",
   gap: "1rem",
   "@media (max-width: 600px)": {
     paddingBottom: "1.5rem",

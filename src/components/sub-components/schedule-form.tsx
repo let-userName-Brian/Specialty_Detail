@@ -1,5 +1,13 @@
-import { Box, MenuItem, TextField, Typography, styled } from "@mui/material";
+import {
+  Box,
+  Button,
+  MenuItem,
+  TextField,
+  Typography,
+  styled,
+} from "@mui/material";
 import { useState } from "react";
+import { logEventToGA } from "../../helpers/events";
 
 const formOptions = [
   { question: "Name", type: "text" },
@@ -15,6 +23,10 @@ const formOptions = [
 export default function ScheduleForm() {
   const [services] = useState(["Standard Wash", "Wax", "Ceramic Coating"]);
   const [selectedService, setSelectedService] = useState("Standard Wash");
+
+  const handleSubmit = () => {
+    logEventToGA("Schedule", "Submit", "Schedule Form Submitted");
+  };
 
   const renderInputType = (option: { question: string; type: string }) => {
     switch (option.type) {
@@ -67,6 +79,9 @@ export default function ScheduleForm() {
         {formOptions.map((option, index: number) => (
           <StyledField key={index}>{renderInputType(option)}</StyledField>
         ))}
+        <StyledButton variant="contained" onClick={handleSubmit}>
+          Submit
+        </StyledButton>
       </StyledFormBox>
     </StyledFormWrapper>
   );
@@ -78,7 +93,7 @@ const StyledFormWrapper = styled(Box)({
   justifyContent: "center",
   alignItems: "center",
   width: "100%",
-  height: "auto",
+  height: "100%",
   gap: "1rem",
   "@media (max-width: 600px)": {
     paddingBottom: "1.5rem",
@@ -164,5 +179,20 @@ const StyledTextField = styled(TextField)({
   },
   "@media (max-width: 600px)": {
     width: "100%",
+  },
+});
+
+const StyledButton = styled(Button)({
+  width: "50%",
+  height: "auto",
+  borderRadius: "2rem",
+  fontSize: "1rem",
+  fontWeight: "bold",
+  backgroundColor: "rgba(255, 255, 255, 0.2)",
+  "&:hover": {
+    backgroundColor: "rgba(160,32,240)",
+  },
+  "@media (max-width: 600px)": {
+    fontSize: "1rem",
   },
 });
