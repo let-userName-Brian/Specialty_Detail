@@ -4,65 +4,72 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { CardActionArea } from "@mui/material";
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import wash from "../assets/images/wash.png";
 import wax from "../assets/images/wax.png";
 import interior from "../assets/images/interior.png";
 import fullDetail from "../assets/images/full-detail.png";
+import { getDatabase, ref, onValue } from "firebase/database";
+import { firebase } from "../config/firebase";
+import { renderLoading } from "../helpers/loading-skeletons";
 
-const Services = forwardRef<HTMLElement>((_, ref) => {
-  const [currentServices] = useState([
-    {
-      name: "Exterior Detailing",
-      description: "Exterior detailing description",
-      price: 100,
-      image: wash,
-    },
-    {
-      name: "Interior Detailing",
-      description: "Interior detailing description",
-      price: 100,
-      image: interior,
-    },
-    {
-      name: "Full Detailing",
-      description: "Full detailing description",
-      price: 100,
-      image: fullDetail,
-    },
-    {
-      name: "Wash and Wax",
-      description: "Wash and wax description",
-      price: 100,
-      image: wash,
-    },
-    {
-      name: "Ceramic Coating",
-      description: "Ceramic coating description",
-      price: 500,
-      image: wax,
-    },
-  ]);
+type Service = {
+  name: string;
+  description: string;
+  cost: number;
+  image: string;
+};
+
+const Services = forwardRef<HTMLElement>((_, reference) => {
+  const [currentServices, setCurrentServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    const database = getDatabase(firebase);
+    const dbRef = ref(database, "/services");
+
+    const unsubscribe = onValue(
+      dbRef,
+      (snapshot) => {
+        const dbData: Service[] = snapshot.val();
+        const imageArray = [wash, wax, interior, fullDetail];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        dbData.forEach((service: Service, index: number) => {
+          service.image = imageArray[index];
+        });
+        setCurrentServices(dbData);
+      },
+      {
+        onlyOnce: true,
+      }
+    );
+    return () => unsubscribe();
+  }, []);
 
   return (
-    <StyledServicesWrapper ref={ref}>
-      {currentServices.map((service, index: number) => (
-        <StyledCard key={index}>
-          <CardActionArea>
-            <StyledCardMedia image={service.image} />
-            <StyledCardContent>
-              <StyledCardTitle gutterBottom>{service.name}</StyledCardTitle>
-              <StyledCardDescription>
-                {service.description}
-              </StyledCardDescription>
-              <StyledCardPrice>${service.price}</StyledCardPrice>
-            </StyledCardContent>
-          </CardActionArea>
-        </StyledCard>
-      ))}
+    <StyledServicesWrapper ref={reference}>
+      {currentServices.length === 0 ? (
+        renderLoading()
+      ) : (
+        <>
+          {currentServices.map((service, index: number) => (
+            <StyledCard key={index}>
+              <CardActionArea>
+                <StyledCardMedia image={service.image} />
+                <StyledCardContent>
+                  <StyledCardTitle gutterBottom>{service.name}</StyledCardTitle>
+                  <StyledCardDescription>
+                    {service.description}
+                  </StyledCardDescription>
+                  <StyledCardPrice>${service.cost}</StyledCardPrice>
+                </StyledCardContent>
+              </CardActionArea>
+            </StyledCard>
+          ))}
+        </>
+      )}
     </StyledServicesWrapper>
   );
-})
+});
 
 export default Services;
 

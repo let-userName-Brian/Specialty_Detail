@@ -2,27 +2,56 @@ import { Box, styled } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useState } from "react";
+import { getDatabase, ref, onValue } from "firebase/database";
+import { firebase } from "../config/firebase";
+import { renderLoading } from "../helpers/loading-skeletons";
 
-const About = forwardRef<HTMLElement>((_, ref) => {
+type About = {
+  title: string;
+  description: string;
+  continued?: string;
+};
+
+const About = forwardRef<HTMLElement>((_, reference) => {
+  const [currentAbout, setCurrentAbout] = useState<About>({
+    title: "",
+    description: "",
+  });
+
+  useEffect(() => {
+    const database = getDatabase(firebase);
+    const dbRef = ref(database, "/about");
+
+    const unsubscribe = onValue(
+      dbRef,
+      (snapshot) => {
+        const dbData = snapshot.val();
+        setCurrentAbout(dbData);
+      },
+      {
+        onlyOnce: true,
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <StyledAboutWrapper ref={ref}>
+    <StyledAboutWrapper ref={reference}>
       <StyledCard>
-        <CardContent sx={{ flex: "1 0 auto" }}>
-          <StyledTitle>Our Mission</StyledTitle>
-          <StyledBody sx={{ mb: "1.5rem" }}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-            aliquam, velit vitae aliquam dictum, diam nunc aliquam urna, vitae
-            aliquam justo nisl id nunc. Donec aliquam, velit vitae aliquam
-            dictum, diam nunc aliquam urna, vitae aliquam justo nisl id nunc.
-          </StyledBody>
-          <StyledBody>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-            aliquam, velit vitae aliquam dictum, diam nunc aliquam urna, vitae
-            aliquam justo nisl id nunc. Donec aliquam, velit vitae aliquam
-            dictum, diam nunc aliquam urna, vitae aliquam justo nisl id nunc.
-          </StyledBody>
-        </CardContent>
+        {currentAbout.title === "" ? (
+          renderLoading()
+        ) : (
+          <CardContent sx={{ flex: "1 0 auto" }}>
+            <StyledTitle>{currentAbout.title}</StyledTitle>
+            <StyledBody sx={{ mb: "1.5rem" }}>
+              {currentAbout.description}
+            </StyledBody>
+            <StyledBody sx={{ mb: "1.5rem" }}>
+              {currentAbout.continued}
+            </StyledBody>
+          </CardContent>
+        )}
       </StyledCard>
     </StyledAboutWrapper>
   );
@@ -72,6 +101,7 @@ const StyledTitle = styled(Typography)({
 const StyledBody = styled(Typography)({
   fontSize: "1.5rem",
   color: "white",
+  textAlign: "center",
   "@media (max-width: 600px)": {
     fontSize: "1.2rem",
   },
