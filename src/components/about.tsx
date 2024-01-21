@@ -93,6 +93,7 @@ const StyledTitle = styled(Typography)({
   fontWeight: "bold",
   color: "white",
   marginBottom: "2rem",
+  textAlign: "center",
   "@media (max-width: 600px)": {
     fontSize: "2rem",
   },
