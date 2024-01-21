@@ -1,14 +1,18 @@
 import { Box, Card, Typography, styled } from "@mui/material";
+import { renderLoading } from "../../../helpers/loading-skeletons";
 
 export default function Services() {
   return (
     <StyledServicesWrapper>
-      <StyledTitleBox>
-        <StyledTitle>Services and Prices</StyledTitle>
-      </StyledTitleBox>
       <StyledContentBox>
-        <StyledCard>Services</StyledCard>
-        <StyledCard>prices</StyledCard>
+        <StyledCard>
+          <StyledCardTitle>Services</StyledCardTitle>
+          {renderLoading()}
+        </StyledCard>
+        <StyledCard>
+          <StyledCardTitle>Prices</StyledCardTitle>
+          {renderLoading()}
+        </StyledCard>
       </StyledContentBox>
     </StyledServicesWrapper>
   );
@@ -21,23 +25,7 @@ const StyledServicesWrapper = styled(Box)({
   alignItems: "center",
   gap: "1rem",
   width: "80vw",
-  height: "90vh",
-  marginTop: "-3rem",
-});
-
-const StyledTitleBox = styled(Box)({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  width: "100%",
-  height: "10%",
-});
-
-const StyledTitle = styled(Typography)({
-  fontSize: "2rem",
-  fontWeight: "bold",
-  color: "white",
-  textShadow: "0 0 5px black",
+  height: "85vh",
 });
 
 const StyledContentBox = styled(Box)({
@@ -70,4 +58,11 @@ const StyledCard = styled(Card)({
   "@media (max-width: 600px)": {
     width: "100%",
   },
+});
+
+const StyledCardTitle = styled(Typography)({
+  fontSize: "1.5rem",
+  fontWeight: "bold",
+  marginBottom: "1rem",
+  color: "white",
 });

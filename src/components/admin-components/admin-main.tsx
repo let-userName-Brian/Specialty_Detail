@@ -21,6 +21,7 @@ import ForumIcon from "@mui/icons-material/Forum";
 import Dashboard from "./admin-views/dashboard";
 import Services from "./admin-views/services";
 import Messages from "./admin-views/messages";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const DrawerWidth = 240;
 const MainContent = styled("main")<{ open: boolean }>(({ open }) => ({
@@ -93,6 +94,14 @@ export default function AdminMain() {
           </StyledListItem>
         ))}
       </List>
+      <StyledLogoutBox>
+        <StyledListItem>
+          <StyledListItemIcon>
+            <LogoutIcon />
+          </StyledListItemIcon>
+          <StyledListItemText primary="Logout" />
+        </StyledListItem>
+      </StyledLogoutBox>
     </StyledDrawer>
   );
 
@@ -174,4 +183,8 @@ const StyledListItemText = styled(ListItemText)({
 
 const StyledListItemIcon = styled(ListItemIcon)({
   color: "white",
+});
+
+const StyledLogoutBox = styled(Box)({
+  marginTop: "auto",
 });

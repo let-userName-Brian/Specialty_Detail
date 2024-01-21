@@ -1,44 +1,17 @@
 import { Box, Card, Typography, styled } from "@mui/material";
-import { useEffect, useState } from "react";
+import { renderLoading } from "../../../helpers/loading-skeletons";
 
 export default function Dashboard() {
-  const [siteTraffic, setSiteTraffic] = useState(null);
-  const [userInteractions, setUserInteractions] = useState(null);
-
-  useEffect(() => {
-    // Fetch site traffic data
-    fetch("/api/site-traffic")
-      .then((response) => response.json())
-      .then((data) => setSiteTraffic(data));
-
-    // Fetch user interactions data
-    fetch("/api/user-interactions")
-      .then((response) => response.json())
-      .then((data) => setUserInteractions(data));
-  }, []);
-
   return (
     <StyledDashboardWrapper>
-      <StyledTitleBox>
-        <StyledTitle>Dashboard</StyledTitle>
-      </StyledTitleBox>
       <StyledContentBox>
         <StyledCard>
-          <Typography variant="h6">Site Traffic</Typography>
-          {siteTraffic ? (
-            <div>{/* Render site traffic data here */}</div>
-          ) : (
-            <div>Loading...</div>
-          )}
+          <StyledCardTitle>Site Traffic</StyledCardTitle>
+          {renderLoading()}
         </StyledCard>
         <StyledCard>
-          <Typography variant="h6">User Interactions</Typography>
-          {/* Display user interactions data */}
-          {userInteractions ? (
-            <div>{/* Render user interactions data here */}</div>
-          ) : (
-            <div>Loading...</div>
-          )}
+          <StyledCardTitle>User Interactions</StyledCardTitle>
+          {renderLoading()}
         </StyledCard>
       </StyledContentBox>
     </StyledDashboardWrapper>
@@ -52,23 +25,7 @@ const StyledDashboardWrapper = styled(Box)({
   alignItems: "center",
   gap: "1rem",
   width: "80vw",
-  height: "90vh",
-  marginTop: "-3rem",
-});
-
-const StyledTitleBox = styled(Box)({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  width: "100%",
-  height: "10%",
-});
-
-const StyledTitle = styled(Typography)({
-  fontSize: "2rem",
-  fontWeight: "bold",
-  color: "white",
-  textShadow: "0 0 5px black",
+  height: "85vh",
 });
 
 const StyledContentBox = styled(Box)({
@@ -101,4 +58,11 @@ const StyledCard = styled(Card)({
   "@media (max-width: 600px)": {
     width: "100%",
   },
+});
+
+const StyledCardTitle = styled(Typography)({
+  fontSize: "1.5rem",
+  fontWeight: "bold",
+  marginBottom: "1rem",
+  color: "white",
 });
