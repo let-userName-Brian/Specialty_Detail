@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { logEventToGA } from "../../helpers/events";
+import { Service } from "../../App";
 
 const formOptions = [
   { question: "Name", type: "text" },
@@ -20,8 +21,11 @@ const formOptions = [
   { question: "Message", type: "large-text" },
 ];
 
-export default function ScheduleForm() {
-  const [services] = useState(["Standard Wash", "Wax", "Ceramic Coating"]);
+export default function ScheduleForm({
+  currentServices,
+}: {
+  currentServices: Service[];
+}) {
   const [selectedService, setSelectedService] = useState("Standard Wash");
 
   const handleSubmit = () => {
@@ -46,13 +50,13 @@ export default function ScheduleForm() {
             label={option.question}
             value={selectedService}
           >
-            {services.map((option, index: number) => (
+            {currentServices.map((option, index: number) => (
               <MenuItem
                 key={index}
-                value={option}
-                onClick={() => setSelectedService(option)}
+                value={option.name}
+                onClick={() => setSelectedService(option.name)}
               >
-                {option}
+                {option.name}
               </MenuItem>
             ))}
           </StyledTextField>

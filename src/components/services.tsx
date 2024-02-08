@@ -4,47 +4,20 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { CardActionArea } from "@mui/material";
-import { forwardRef, useEffect, useState } from "react";
-import wash from "../assets/images/wash.png";
-import wax from "../assets/images/wax.png";
-import interior from "../assets/images/interior.png";
-import fullDetail from "../assets/images/full-detail.png";
-import { getDatabase, ref, onValue } from "firebase/database";
-import { firebase } from "../config/firebase";
+import { forwardRef } from "react";
 import { renderLoading } from "../helpers/loading-skeletons";
+import { ServicesProps } from "../App";
 
-type Service = {
+export type Service = {
   name: string;
   description: string;
   cost: number;
   image: string;
 };
 
-const Services = forwardRef<HTMLElement>((_, reference) => {
-  const [currentServices, setCurrentServices] = useState<Service[]>([]);
-
-  useEffect(() => {
-    const database = getDatabase(firebase);
-    const dbRef = ref(database, "/services");
-
-    const unsubscribe = onValue(
-      dbRef,
-      (snapshot) => {
-        const dbData: Service[] = snapshot.val();
-        const imageArray = [wash, wax, interior, fullDetail];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        dbData.forEach((service: Service, index: number) => {
-          service.image = imageArray[index];
-        });
-        setCurrentServices(dbData);
-      },
-      {
-        onlyOnce: true,
-      }
-    );
-    return () => unsubscribe();
-  }, []);
-
+const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
+  const { currentServices } = props;
+  
   return (
     <StyledServicesWrapper ref={reference}>
       {currentServices.length === 0 ? (

@@ -1,20 +1,22 @@
 import { Box, styled } from "@mui/material";
-import Calander from "./sub-components/calander";
+import CalendarComp from "./sub-components/calender";
 import ScheduleForm from "./sub-components/schedule-form";
 import { forwardRef } from "react";
+import { ServicesProps } from "../App";
 
-const Schedule = forwardRef<HTMLElement>((_, ref) => {
+const Schedule = forwardRef<HTMLElement, ServicesProps>((props, ref) => {
+  const { currentServices } = props;
   return (
     <StyledScheduleWrapper ref={ref}>
       <StyledCustomCard>
-        <Calander />
+        <CalendarComp />
       </StyledCustomCard>
       <StyledCustomCard>
-        <ScheduleForm />
+        <ScheduleForm currentServices={currentServices}/>
       </StyledCustomCard>
     </StyledScheduleWrapper>
   );
-})
+});
 
 export default Schedule;
 
