@@ -22,6 +22,9 @@ import Dashboard from "./admin-views/dashboard";
 import Services from "./admin-views/services";
 import Messages from "./admin-views/messages";
 import LogoutIcon from "@mui/icons-material/Logout";
+import ReviewsIcon from '@mui/icons-material/Reviews';
+import { Service } from "../../App";
+import Testimonies from "./admin-views/testimonies";
 
 const DrawerWidth = 240;
 const MainContent = styled("main")<{ open: boolean }>(({ open }) => ({
@@ -35,10 +38,11 @@ const MainContent = styled("main")<{ open: boolean }>(({ open }) => ({
 const options = [
   { icon: <AnalyticsIcon />, text: "Dashboard" },
   { icon: <LocalCarWashIcon />, text: "Prices / Services" },
+  { icon: <ReviewsIcon />, text: "Testimonies" },
   { icon: <ForumIcon />, text: "Messages" },
 ];
 
-export default function AdminMain() {
+export default function AdminMain({currentServices}: {currentServices: Service[]}) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
@@ -64,8 +68,10 @@ export default function AdminMain() {
       case 0:
         return <Dashboard />;
       case 1:
-        return <Services />;
+        return <Services currentServices={currentServices}/>;
       case 2:
+        return <Testimonies />
+      case 3:
         return <Messages />;
       default:
         return <Dashboard />;

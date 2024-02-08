@@ -9,6 +9,7 @@ import { renderLoading } from "../helpers/loading-skeletons";
 import { ServicesProps } from "../App";
 
 export type Service = {
+  id: number;
   name: string;
   description: string;
   cost: number;
@@ -17,7 +18,7 @@ export type Service = {
 
 const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
   const { currentServices } = props;
-  
+
   return (
     <StyledServicesWrapper ref={reference}>
       {currentServices.length === 0 ? (
@@ -26,7 +27,7 @@ const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
         <>
           {currentServices.map((service, index: number) => (
             <StyledCard key={index}>
-              <CardActionArea>
+              <CardActionArea disableRipple>
                 <StyledCardMedia image={service.image} />
                 <StyledCardContent>
                   <StyledCardTitle gutterBottom>{service.name}</StyledCardTitle>
@@ -47,25 +48,23 @@ const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
 export default Services;
 
 const StyledServicesWrapper = styled(Box)({
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "center",
-  flexWrap: "wrap",
-  alignItems: "center",
-  width: "100%",
-  height: "auto",
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(20%, 1fr))",
+  gridAutoRows: "minmax(400px, auto)",
   gap: "3rem",
   padding: "2rem",
+  width: "100%",
+  height: "auto",
+  marginTop: "3rem",
+  marginBottom: "1rem",
   "@media (max-width: 600px)": {
-    flexDirection: "column",
+    gridTemplateColumns: "1fr",
     padding: "1rem",
     marginTop: "2rem",
   },
 });
 
 const StyledCard = styled(Card)({
-  minWidth: "20%",
-  maxWidth: "20%",
   padding: "1rem",
   flex: "1 1 auto",
   backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -73,9 +72,9 @@ const StyledCard = styled(Card)({
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
   backdropFilter: "blur(10px)",
   borderRadius: "3rem",
-  "@media (max-width: 600px)": {
-    minWidth: "100%",
-    maxWidth: "100%",
+  transition: "transform 0.2s",
+  "&:hover": {
+    transform: "scale(1.05)",
   },
 });
 

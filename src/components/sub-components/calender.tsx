@@ -33,8 +33,10 @@ export default function CalendarComp() {
       dbRef,
       (snapshot) => {
         const dbData = snapshot.val();
-        setCalendars([{ calendarId: dbData.calendar_key }]);
-        setApiKey(dbData.api_key);
+        if (dbData) {
+          setCalendars([{ calendarId: dbData.calendar_key }]);
+          setApiKey(dbData.api_key);
+        }
       },
       {
         onlyOnce: true,

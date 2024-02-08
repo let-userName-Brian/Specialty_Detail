@@ -4,7 +4,7 @@ import { Box, Skeleton, styled } from "@mui/material";
 import Navbar from "./components/navbar";
 import Main from "./components/main";
 import Footer from "./components/footer";
-import ReactGA from 'react-ga';
+import ReactGA from "react-ga";
 import { getDatabase, onValue, ref } from "firebase/database";
 import { firebase } from "./config/firebase";
 import wash from "./assets/images/wash.png";
@@ -21,6 +21,7 @@ const Login = lazy(() => import("./components/admin-components/login"));
 const TRACKING_ID = "G-K4Z3CZN5Z2";
 
 export type Service = {
+  id: number;
   name: string;
   description: string;
   cost: number;
@@ -44,21 +45,15 @@ export default function App() {
     const database = getDatabase(firebase);
     const dbRef = ref(database, "/services");
 
-    const unsubscribe = onValue(
-      dbRef,
-      (snapshot) => {
-        const dbData: Service[] = snapshot.val();
-        const imageArray = [wash, wax, interior, fullDetail];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        dbData.forEach((service: Service, index: number) => {
-          service.image = imageArray[index];
-        });
-        setCurrentServices(dbData);
-      },
-      {
-        onlyOnce: true,
-      }
-    );
+    const unsubscribe = onValue(dbRef, (snapshot) => {
+      const dbData: Service[] = snapshot.val();
+      const imageArray = [wash, wax, interior, fullDetail];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      dbData.forEach((service: Service, index: number) => {
+        service.image = imageArray[index];
+      });
+      setCurrentServices(dbData);
+    });
     return () => unsubscribe();
   }, []);
 
@@ -87,9 +82,15 @@ export default function App() {
                   }
                 >
                   <About ref={aboutRef} />
-                  <Services ref={servicesRef}  currentServices={currentServices}/>
+                  <Services
+                    ref={servicesRef}
+                    currentServices={currentServices}
+                  />
                   <Testimonials ref={testimonialsRef} />
-                  <Schedule ref={scheduleRef} currentServices={currentServices}/>
+                  <Schedule
+                    ref={scheduleRef}
+                    currentServices={currentServices}
+                  />
                 </Suspense>
                 <Footer />
               </>
@@ -123,7 +124,7 @@ export default function App() {
                   />
                 }
               >
-                <Admin />
+                <Admin currentServices={currentServices} />
               </Suspense>
             }
           />
