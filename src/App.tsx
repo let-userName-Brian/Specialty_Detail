@@ -4,7 +4,6 @@ import { Box, Skeleton, styled } from "@mui/material";
 import Navbar from "./components/navbar";
 import Main from "./components/main";
 import Footer from "./components/footer";
-import ReactGA from "react-ga";
 import { getDatabase, onValue, ref } from "firebase/database";
 import { firebase } from "./config/firebase";
 import wash from "./assets/images/wash.png";
@@ -18,7 +17,6 @@ const Services = lazy(() => import("./components/services"));
 const Testimonials = lazy(() => import("./components/testimonials"));
 const Admin = lazy(() => import("./components/admin-components/admin-main"));
 const Login = lazy(() => import("./components/admin-components/login"));
-const TRACKING_ID = "G-K4Z3CZN5Z2";
 
 export type Service = {
   id: number;
@@ -38,8 +36,6 @@ export default function App() {
   const testimonialsRef = useRef<HTMLElement>(null);
   const scheduleRef = useRef<HTMLElement>(null);
   const [currentServices, setCurrentServices] = useState<Service[]>([]);
-
-  ReactGA.initialize(TRACKING_ID);
 
   useEffect(() => {
     const database = getDatabase(firebase);

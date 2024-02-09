@@ -136,7 +136,7 @@ export default function Services({
                       </StyledAccordionSummary>
                       <StyledAccordionDetails>
                         {editStates[service.id]?.editing.name ? (
-                          <StyledPair>
+                          <StyledPair className="edit">
                             <StyledTextField
                               variant="standard"
                               value={editStates[service.id].values.name}
@@ -172,7 +172,7 @@ export default function Services({
                         )}
 
                         {editStates[service.id]?.editing.cost ? (
-                          <StyledPair>
+                          <StyledPair className="edit">
                             <StyledTextField
                               variant="standard"
                               value={editStates[service.id].values.cost}
@@ -208,7 +208,7 @@ export default function Services({
                         )}
 
                         {editStates[service.id]?.editing.description ? (
-                          <StyledPair>
+                          <StyledPair className="edit">
                             <StyledTextField
                               variant="standard"
                               value={editStates[service.id].values.description}
@@ -414,6 +414,12 @@ const StyledPair = styled(Box)({
   alignItems: "center",
   width: "100%",
   gap: "1rem",
+  "&.edit": {
+    "@media (max-width: 600px)": {
+      flexDirection: "column",
+      gap: "0",
+    },
+  },
 });
 
 const StyledAccordion = styled(Accordion)({
@@ -470,7 +476,6 @@ const StyledIconButtonWrapper = styled(Box)({
   justifyContent: "center",
   gap: "1rem",
   "@media (max-width: 600px)": {
-    flexDirection: "column",
     gap: "0",
   },
 });

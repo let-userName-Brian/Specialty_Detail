@@ -11,10 +11,12 @@ import { getDatabase, ref, onValue } from "firebase/database";
 import { firebase } from "../config/firebase";
 import { renderLoading } from "../helpers/loading-skeletons";
 
-type Review = {
+export type Review = {
+  id: number;
   label: string;
   description: string;
   stars: number;
+  shown: boolean;
 };
 
 const Testimonials = forwardRef<HTMLElement>((_, reference) => {
@@ -27,16 +29,11 @@ const Testimonials = forwardRef<HTMLElement>((_, reference) => {
     const database = getDatabase(firebase);
     const dbRef = ref(database, "/testimonials");
 
-    const unsubscribe = onValue(
-      dbRef,
-      (snapshot) => {
-        const dbData: Review[] = snapshot.val();
-        setReviews(dbData);
-      },
-      {
-        onlyOnce: true,
-      }
-    );
+    const unsubscribe = onValue(dbRef, (snapshot) => {
+      let dbData: Review[] = snapshot.val();
+      dbData = dbData.filter((review) => review.shown);
+      setReviews(dbData);
+    });
     return () => unsubscribe();
   }, []);
 
@@ -63,12 +60,12 @@ const Testimonials = forwardRef<HTMLElement>((_, reference) => {
     <StyledTestimonialsWrapper ref={reference}>
       {reviews.length > 0 ? (
         <>
-          <StlyedHeader square elevation={0}>
+          <StyledHeader square elevation={0}>
             <StyledLabel>{reviews[activeReview].label}</StyledLabel>
             <StyledLabel sx={{ color: "yellow", fontSize: "2rem" }}>
               {renderStars(reviews[activeReview].stars)}
             </StyledLabel>
-          </StlyedHeader>
+          </StyledHeader>
           <StyledContentBox>
             <StyledContentText>
               {reviews[activeReview].description}
@@ -153,7 +150,7 @@ const StyledLabel = styled(Typography)({
   },
 });
 
-const StlyedHeader = styled(Paper)({
+const StyledHeader = styled(Paper)({
   display: "flex",
   flexDirection: "row",
   justifyContent: "space-between",

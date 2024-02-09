@@ -28,9 +28,6 @@ const About = forwardRef<HTMLElement>((_, reference) => {
       (snapshot) => {
         const dbData = snapshot.val();
         setCurrentAbout(dbData);
-      },
-      {
-        onlyOnce: true,
       }
     );
     return () => unsubscribe();
