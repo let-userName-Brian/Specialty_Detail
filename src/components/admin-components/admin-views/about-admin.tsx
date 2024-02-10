@@ -298,11 +298,13 @@ const StyledAboutSection = styled(Box)({
   backgroundColor: "rgba(255, 255, 255, 0.1)",
   border: "1px solid rgba(255, 255, 255, 0.2)",
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  backdropFilter: "blur(10px)",
-  borderRadius: "3rem",
+  borderRadius: "1rem",
   width: "100%",
-  height: "max-content",
+  height: "30%",
   padding: "1rem",
+  "@media (max-width: 600px)": {
+    height: "max-content",
+  },
 });
 
 const StyledIconButtonWrapper = styled(Box)({

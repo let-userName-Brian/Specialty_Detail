@@ -1,17 +1,42 @@
 import { Box, Card, Typography, styled } from "@mui/material";
 import { renderLoading } from "../../../helpers/loading-skeletons";
+import { useEffect, useState } from "react";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { firebase } from "../../../config/firebase";
+import { FlattenedData, fetchAnalyticsDataIfNeeded } from "../analytics-cache";
+import BarChart from "./bar-chart";
 
 export default function Dashboard() {
+  const [analyticsData, setAnalyticsData] = useState<FlattenedData[] | null>(
+    null
+  );
+
+  useEffect(() => {
+    const functions = getFunctions(firebase);
+    const fetchAnalytics = () =>
+      httpsCallable(functions, "fetchAnalyticsData")();
+
+    fetchAnalyticsDataIfNeeded(fetchAnalytics)
+      .then((cachedData) => {
+        setAnalyticsData(cachedData);
+      })
+      .catch((error) => {
+        console.error("Error fetching analytics data:", error);
+      });
+  }, []);
+
   return (
     <StyledDashboardWrapper>
       <StyledContentBox>
         <StyledCard>
-          <StyledCardTitle>Site Traffic</StyledCardTitle>
-          {renderLoading()}
-        </StyledCard>
-        <StyledCard>
-          <StyledCardTitle>User Interactions</StyledCardTitle>
-          {renderLoading()}
+          <StyledCardTitle>Site Traffic By City</StyledCardTitle>
+          <StyledCardContent>
+            {analyticsData ? (
+              <BarChart analyticsData={analyticsData} />
+            ) : (
+              renderLoading()
+            )}
+          </StyledCardContent>
         </StyledCard>
       </StyledContentBox>
     </StyledDashboardWrapper>
@@ -48,7 +73,7 @@ const StyledCard = styled(Card)({
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
   backdropFilter: "blur(10px)",
   borderRadius: "3rem",
-  width: "49%",
+  width: "100%",
   height: "100%",
   color: "white",
   "@media (max-width: 900px)": {
@@ -65,4 +90,13 @@ const StyledCardTitle = styled(Typography)({
   fontWeight: "bold",
   marginBottom: "1rem",
   color: "white",
+});
+
+const StyledCardContent = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  gap: "1rem",
+  height: "90%",
 });
