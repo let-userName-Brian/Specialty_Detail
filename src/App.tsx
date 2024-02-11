@@ -6,10 +6,11 @@ import Main from "./components/main";
 import Footer from "./components/footer";
 import { getDatabase, onValue, ref } from "firebase/database";
 import { firebase } from "./config/firebase";
-import wash from "./assets/images/wash.png";
-import wax from "./assets/images/wax.png";
-import interior from "./assets/images/interior.png";
-import fullDetail from "./assets/images/full-detail.png";
+import {
+  getStorage,
+  ref as storageRef,
+  getDownloadURL,
+} from "firebase/storage";
 
 const About = lazy(() => import("./components/about"));
 const Schedule = lazy(() => import("./components/schedule"));
@@ -24,6 +25,7 @@ export type Service = {
   description: string;
   cost: number;
   image: string;
+  imageURL: string;
 };
 
 export interface ServicesProps {
@@ -41,15 +43,21 @@ export default function App() {
     const database = getDatabase(firebase);
     const dbRef = ref(database, "/services");
 
-    const unsubscribe = onValue(dbRef, (snapshot) => {
+    const storage = getStorage(firebase);
+
+    const unsubscribe = onValue(dbRef, async (snapshot) => {
       const dbData: Service[] = snapshot.val();
-      const imageArray = [wash, wax, interior, fullDetail];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      dbData.forEach((service: Service, index: number) => {
-        service.image = imageArray[index];
+
+      const promises = dbData.map(async (service: Service) => {
+        const imagePath = service.image;
+        const imageURL = await getDownloadURL(storageRef(storage, imagePath));
+        return { ...service, imageURL };
       });
-      setCurrentServices(dbData);
+
+      const updatedServices = await Promise.all(promises);
+      setCurrentServices(updatedServices);
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -137,4 +145,5 @@ const StyledAppWrapper = styled(Box)({
   alignItems: "center",
   height: "100%",
   width: "100%",
+  boxSizing: "border-box",
 });

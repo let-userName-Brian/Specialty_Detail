@@ -225,8 +225,9 @@ const StyledCard = styled(Card)({
   backdropFilter: "blur(10px)",
   padding: "2rem",
   "@media (max-width: 600px)": {
-    width: "90%",
+    width: "100%",
     height: "100%",
+    padding: "1rem",
   },
 });
 
@@ -236,12 +237,14 @@ const StyledCardContentBox = styled(Box)({
   alignItems: "center",
   width: "100%",
   height: "100%",
-  gap: ".5rem",
+  gap: "1rem",
   overflowY: "auto",
+  marginTop: "1rem",
   "& .MuiTextField-root": {
     width: "100%",
   },
 });
+
 const StyledBody = styled(Typography)({
   fontSize: "1.5rem",
   color: "white",

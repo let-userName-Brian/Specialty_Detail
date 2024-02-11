@@ -8,14 +8,6 @@ import { forwardRef } from "react";
 import { renderLoading } from "../helpers/loading-skeletons";
 import { ServicesProps } from "../App";
 
-export type Service = {
-  id: number;
-  name: string;
-  description: string;
-  cost: number;
-  image: string;
-};
-
 const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
   const { currentServices } = props;
 
@@ -27,8 +19,8 @@ const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
         <>
           {currentServices.map((service, index: number) => (
             <StyledCard key={index}>
-              <CardActionArea disableRipple>
-                <StyledCardMedia image={service.image} />
+              <StyledCardActionArea disableRipple>
+                <StyledCardMedia image={service.imageURL} />
                 <StyledCardContent>
                   <StyledCardTitle gutterBottom>{service.name}</StyledCardTitle>
                   <StyledCardDescription>
@@ -36,7 +28,7 @@ const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
                   </StyledCardDescription>
                   <StyledCardPrice>${service.cost}</StyledCardPrice>
                 </StyledCardContent>
-              </CardActionArea>
+              </StyledCardActionArea>
             </StyledCard>
           ))}
         </>
@@ -50,13 +42,12 @@ export default Services;
 const StyledServicesWrapper = styled(Box)({
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill, minmax(20%, 1fr))",
-  gridAutoRows: "minmax(400px, auto)",
+  gridAutoRows: "auto",
   gap: "3rem",
   padding: "2rem",
   width: "100%",
   height: "auto",
-  marginTop: "3rem",
-  marginBottom: "1rem",
+  marginTop: "2rem",
   "@media (max-width: 600px)": {
     gridTemplateColumns: "1fr",
     padding: "1rem",
@@ -67,6 +58,7 @@ const StyledServicesWrapper = styled(Box)({
 const StyledCard = styled(Card)({
   padding: "1rem",
   flex: "1 1 auto",
+  minHeight: "clamp(400px, 50vh, 500px)",
   backgroundColor: "rgba(255, 255, 255, 0.1)",
   border: "1px solid rgba(255, 255, 255, 0.2)",
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
@@ -78,10 +70,24 @@ const StyledCard = styled(Card)({
   },
 });
 
+const StyledCardActionArea = styled(CardActionArea)({
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-evenly",
+  gap: "1rem",
+  "&:hover": {
+    backgroundColor: "transparent",
+    cursor: "default",
+  },
+});
+
 const StyledCardMedia = styled(CardMedia)({
-  height: 0,
-  paddingTop: "75%",
+  width: "100%",
+  height: "90%",
   borderRadius: "3rem",
+  border: "1px solid rgba(255, 255, 255, 0.2)",
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
 });
 
 const StyledCardContent = styled(CardContent)({

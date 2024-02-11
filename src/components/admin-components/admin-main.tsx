@@ -22,8 +22,8 @@ import Dashboard from "./admin-views/dashboard";
 import Services from "./admin-views/services";
 import Messages from "./admin-views/messages";
 import LogoutIcon from "@mui/icons-material/Logout";
-import ReviewsIcon from '@mui/icons-material/Reviews';
-import InfoIcon from '@mui/icons-material/Info';
+import ReviewsIcon from "@mui/icons-material/Reviews";
+import InfoIcon from "@mui/icons-material/Info";
 import { Service } from "../../App";
 import Testimonies from "./admin-views/testimonies";
 import AboutAdmin from "./admin-views/about-admin";
@@ -41,11 +41,15 @@ const options = [
   { icon: <AnalyticsIcon />, text: "Dashboard" },
   { icon: <LocalCarWashIcon />, text: "Prices / Services" },
   { icon: <ReviewsIcon />, text: "Testimonies" },
-  { icon: <InfoIcon />, text: "About"},
+  { icon: <InfoIcon />, text: "About" },
   { icon: <ForumIcon />, text: "Messages" },
 ];
 
-export default function AdminMain({currentServices}: {currentServices: Service[]}) {
+export default function AdminMain({
+  currentServices,
+}: {
+  currentServices: Service[];
+}) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
@@ -71,11 +75,11 @@ export default function AdminMain({currentServices}: {currentServices: Service[]
       case 0:
         return <Dashboard />;
       case 1:
-        return <Services currentServices={currentServices}/>;
+        return <Services currentServices={currentServices} />;
       case 2:
-        return <Testimonies />
-      case 3: 
-        return <AboutAdmin />
+        return <Testimonies />;
+      case 3:
+        return <AboutAdmin />;
       case 4:
         return <Messages />;
       default:
@@ -137,10 +141,10 @@ export default function AdminMain({currentServices}: {currentServices: Service[]
         </StyledAppBar>
       )}
       {drawer}
-      <MainContent open={drawerOpen}>
+      <StyledMainContent open={drawerOpen}>
         <Toolbar />
         {(!isMobile || !drawerOpen) && renderContent()}
-      </MainContent>
+      </StyledMainContent>
     </Box>
   );
 }
@@ -149,6 +153,12 @@ const StyledAppBar = styled(AppBar)({
   backgroundColor: "rgba(255, 255, 255, 0.1)",
   backdropFilter: "blur(10px)",
   boxShadow: "none",
+});
+
+const StyledMainContent = styled(MainContent)({
+  display: "flex",
+  flexDirection: "column",
+  gap: "1rem",
 });
 
 const StyledDrawer = styled(Drawer)({
