@@ -16,7 +16,7 @@
     "@google-analytics/data": "^4.3.0",
     "@mui/icons-material": "^5.15.4",
     "@mui/material": "^5.15.4",
-    "@mui/x-date-pickers": "^6.19.0",
+    "@mui/x-date-pickers": "^6.19.4",
     "chart.js": "^4.4.1",
     "dayjs": "^1.11.10",
     "firebase": "^10.7.2",
