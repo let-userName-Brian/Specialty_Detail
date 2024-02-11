@@ -6,107 +6,100 @@ import {
   CardContent,
   CardMedia,
   IconButton,
-  // TextField,
   Typography,
+  MenuItem,
+  Menu,
   styled,
 } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { renderLoading } from "../../../helpers/loading-skeletons";
 import { Service } from "../../../App";
-// import { useState } from "react";
-import EditIcon from "@mui/icons-material/Edit";
-// import CheckIcon from "@mui/icons-material/Check";
-// import CloseIcon from "@mui/icons-material/Close";
-import { getDatabase, ref, set, /*update*/ } from "firebase/database";
+import { getDatabase, ref /*update*/, remove, set } from "firebase/database";
 import { firebase } from "../../../config/firebase";
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+
+const DEFAULT_SERVICE: Service = {
+  id: uuidv4(),
+  name: "DEFAULT SERVICE NAME",
+  description: "DEFAULT SERVICE DESCRIPTION",
+  cost: 0,
+  image:
+    "gs://specialty-detail.appspot.com/services_images/full-detail-BbKdWSxI.png",
+  imageURL: "DEFAULT IMAGE URL",
+};
+
+const options = ["Edit", "Delete", "Duplicate"];
+const ITEM_HEIGHT = 48;
 
 export default function Services({
   currentServices,
 }: {
   currentServices: Service[];
 }) {
-  // const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
-  // const [editStates, setEditStates] = useState(
-  //   currentServices.reduce((acc, service) => {
-  //     acc[service.id] = {
-  //       editing: {
-  //         name: false,
-  //         description: false,
-  //         cost: false,
-  //       },
-  //       values: {
-  //         name: service.name,
-  //         description: service.description,
-  //         cost: service.cost,
-  //       },
-  //     };
-  //     return acc;
-  //   }, {})
-  // );
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedService, setSelectedService] =
+    useState<Service>(DEFAULT_SERVICE);
+  const open = Boolean(anchorEl);
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-  // const toggleEdit = (id, field) => {
-  //   setEditStates((prev) => ({
-  //     ...prev,
-  //     [id]: {
-  //       ...prev[id],
-  //       editing: {
-  //         ...prev[id].editing,
-  //         [field]: !prev[id].editing[field],
-  //       },
-  //     },
-  //   }));
-  // };
+  const handleIconClick = (
+    service: Service,
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setSelectedService(service);
+    setAnchorEl(event.currentTarget);
+  };
 
-  // const handleChange = (id, field, value) => {
-  //   setEditStates((prev) => ({
-  //     ...prev,
-  //     [id]: {
-  //       ...prev[id],
-  //       values: {
-  //         ...prev[id].values,
-  //         [field]: value,
-  //       },
-  //     },
-  //   }));
-  // };
-
-  // const confirmEdit = async (id: number, field: keyof Service) => {
-  //   const newValue = editStates[id].values[field];
-  //   const updateData = { [field]: newValue };
-
-  //   await editService(id, updateData).catch((error) => {
-  //     console.error("Error updating service: ", error);
-  //   });
-
-  //   toggleEdit(id, field);
-  // };
-
-  // const cancelEdit = (id, field, originalValue) => {
-  //   handleChange(id, field, originalValue);
-  //   toggleEdit(id, field);
-  // };
+  const handleSelection = async (option: string) => {
+    switch (option) {
+      case "Edit":
+        console.log("Editing service...");
+        break;
+      case "Delete":
+        console.log("Deleting service...");
+        await deleteService(selectedService.id);
+        break;
+      case "Duplicate":
+        await addService({
+          ...selectedService,
+          id: uuidv4(),
+        });
+        break;
+      default:
+        console.log("Invalid option selected!");
+        break;
+    }
+    handleClose();
+  };
 
   //DB INTERACTIONS
-  const addService = async () => {
-    const newService: Partial<Service> = {
-      id: currentServices.length + 1,
-      name: "DEFAULT SERVICE NAME",
-      description: "DEFAULT SERVICE DESCRIPTION",
-      cost: 0,
-      image:
-        "gs://specialty-detail.appspot.com/services_images/full-detail-BbKdWSxI.png",
-      imageURL: "DEFAULT IMAGE URL",
-    };
-
+  const addService = async (serviceToAdd?: Service) => {
+    const service = serviceToAdd ?? DEFAULT_SERVICE;
     const database = getDatabase(firebase);
-    const newIndex = currentServices.length;
 
-    const newServiceRef = ref(database, `/services/${newIndex}`);
-    set(newServiceRef, newService)
+    const newServiceRef = ref(database, `/services/${service.id}`);
+    set(newServiceRef, service)
       .then(() => {
-        console.log("Added new service with index: ", newIndex);
+        console.log("Added new service with index: ", service.id);
       })
       .catch((error) => {
         console.error("Error adding new service: ", error);
+      });
+  };
+
+  const deleteService = async (serviceId: number) => {
+    const database = getDatabase(firebase);
+    const serviceRef = ref(database, `/services/${serviceId}`);
+
+    remove(serviceRef)
+      .then(() => {
+        console.log("Service deleted successfully!");
+      })
+      .catch((error) => {
+        console.error("Error deleting service: ", error);
       });
   };
 
@@ -143,16 +136,38 @@ export default function Services({
                         </StyledCardDescription>
                         <StyledCardPrice>${service.cost}</StyledCardPrice>
                       </StyledCardContent>
-                      <StyledEditBox>
-                        <IconButton
-                          onClick={() =>
-                            console.log("Edit service", service.id)
-                          }
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </StyledEditBox>
                     </StyledCardActionArea>
+                    <StyledEditBox>
+                      <IconButton
+                        onClick={(event) => handleIconClick(service, event)}
+                      >
+                        <MoreVertIcon
+                          sx={{
+                            transform: "rotate(90deg)",
+                          }}
+                        />
+                      </IconButton>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        PaperProps={{
+                          style: {
+                            maxHeight: ITEM_HEIGHT * 4.5,
+                            width: "20ch",
+                          },
+                        }}
+                      >
+                        {options.map((option) => (
+                          <MenuItem
+                            key={option}
+                            onClick={() => handleSelection(option)}
+                          >
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Menu>
+                    </StyledEditBox>
                   </StyledServiceCard>
                 ))}
           </StyledCardContentBox>
@@ -213,7 +228,7 @@ const StyledCard = styled(Card)({
   },
   "@media (max-width: 600px)": {
     width: "100%",
-    padding: '1rem'
+    padding: "1rem",
   },
 });
 
@@ -231,7 +246,7 @@ const StyledCardContentBox = styled(Box)({
   },
   "@media (max-width: 600px)": {
     gridTemplateColumns: "1fr",
-    padding: '0',
+    padding: "0",
     marginBottom: "1rem",
   },
 });
@@ -248,7 +263,7 @@ const StyledServiceCard = styled(Card)({
 });
 
 const StyledCardActionArea = styled(CardActionArea)({
-  height: "100%",
+  height: "93%",
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-evenly",

@@ -47,8 +47,7 @@ export default function App() {
 
     const unsubscribe = onValue(dbRef, async (snapshot) => {
       const dbData: Service[] = snapshot.val();
-
-      const promises = dbData.map(async (service: Service) => {
+      const promises = Object.values(dbData).map(async (service: Service) => {
         const imagePath = service.image;
         const imageURL = await getDownloadURL(storageRef(storage, imagePath));
         return { ...service, imageURL };

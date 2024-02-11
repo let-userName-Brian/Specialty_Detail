@@ -7,7 +7,7 @@ import {
   styled,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { logEventToGA } from "../../helpers/events";
+// import { logEventToGA } from "../../helpers/events";
 import { Service } from "../../App";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -18,7 +18,9 @@ import {
   DesktopTimePicker,
   MobileTimePicker,
 } from "@mui/x-date-pickers";
-
+import { getDatabase, ref, set } from "firebase/database";
+import { firebase } from "../../config/firebase";
+import { v4 as uuidv4 } from "uuid";
 export interface Form {
   name: string;
   email: string;
@@ -29,8 +31,8 @@ export interface Form {
     state: string;
     zip: string;
   };
-  date: string;
-  time: string;
+  date: any;
+  time: any;
   service: string;
 }
 
@@ -46,11 +48,11 @@ const initialFormState: Form = {
   },
   date: "",
   time: "",
-  service: "Standard Wash",
+  service: "",
 };
 
 const validateEmail = (email: string): boolean => {
-  return /\S+@\S+\.\S+/.test(email);
+  return email.includes("@") && email.includes(".");
 };
 
 const formatPhoneNumber = (number: string): string => {
@@ -85,6 +87,7 @@ export default function ScheduleForm({
   const [formState, setFormState] = useState<Form>(initialFormState);
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 600);
@@ -98,6 +101,10 @@ export default function ScheduleForm({
   // const handleSubmit = () => {
   //   logEventToGA("Schedule", "Submit", "Schedule Form Submitted");
   // };
+
+  useEffect(() => {
+    setIsSubmitEnabled(isFormValid(formState));
+  }, [formState]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -123,162 +130,178 @@ export default function ScheduleForm({
       }
       setFormState((prevState) => ({ ...prevState, [key]: formattedValue }));
     }
-
-    setIsSubmitEnabled(isFormValid(formState));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Submit logic here
-    console.log(formState);
-    logEventToGA("Schedule", "Submit", "Schedule Form Submitted");
+    const database = getDatabase(firebase);
+    const id = uuidv4();
+    const newServiceRef = ref(database, `/messages/${id}`);
+    set(newServiceRef, formState)
+      .then(() => {
+        setFormSubmitted(true);
+        setFormState(initialFormState);
+        // logEventToGA("Schedule", "Submit", "Schedule Form Submitted");
+      })
+      .catch((error) => {
+        console.error("Error adding new message: ", error);
+      });
+
   };
 
   return (
     <StyledFormWrapper>
-      <StyledFormTitleBox>
-        <StyledFormTitle>Let's get you on the books</StyledFormTitle>
-      </StyledFormTitleBox>
-      <StyledFormBox>
-        <StyledField>
-          <StyledGroupTitle>Contact Info</StyledGroupTitle>
-          <StyledTextField
-            variant="standard"
-            label="Name"
-            value={formState.name}
-            onChange={(e) => handleInputChange(e, "name")}
-            sx={{ width: "100%" }}
-          />
-          <StyledGroup>
-            <StyledTextField
-              variant="standard"
-              label="Email"
-              value={formState.email}
-              onChange={(e) => handleInputChange(e, "email")}
-            />
-            <StyledTextField
-              variant="standard"
-              label="Phone Number"
-              value={formState.number}
-              onChange={(e) => handleInputChange(e, "number")}
-            />
-          </StyledGroup>
-        </StyledField>
-
-        <StyledField>
-          <StyledGroupTitle>Address</StyledGroupTitle>
-          <StyledTextField
-            variant="standard"
-            label="Street"
-            sx={{ width: "100%" }}
-            value={formState.address.street}
-            onChange={(e) => handleInputChange(e, "address.street")}
-          />
-          <StyledGroup>
-            <StyledTextField
-              variant="standard"
-              label="City"
-              value={formState.address.city}
-              onChange={(e) => handleInputChange(e, "address.city")}
-            />
-            <StyledTextField
-              variant="standard"
-              label="State"
-              value={formState.address.state}
-            />
-            <StyledTextField
-              variant="standard"
-              label="Zip"
-              value={formState.address.zip}
-              onChange={(e) => handleInputChange(e, "address.zip")}
-            />
-          </StyledGroup>
-        </StyledField>
-
-        <StyledField>
-          <StyledGroupTitle>When and which service?</StyledGroupTitle>
-          <StyledGroup>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              {isMobile ? (
-                <StyledMobileDatePicker
-                  label="What Day"
-                  value={dayjs(formState.date) || dayjs()}
-                  onChange={(newValue: any) => {
-                    setFormState((prevState) => ({
-                      ...prevState,
-                      date: newValue,
-                    }));
-                  }}
+      {!formSubmitted ? (
+        <>
+          <StyledFormTitleBox>
+            <StyledFormTitle>Let's get you on the books</StyledFormTitle>
+          </StyledFormTitleBox>
+          <StyledFormBox>
+            <StyledField>
+              <StyledGroupTitle>Contact Info</StyledGroupTitle>
+              <StyledTextField
+                variant="standard"
+                label="Name"
+                value={formState.name}
+                onChange={(e) => handleInputChange(e, "name")}
+                sx={{ width: "100%" }}
+              />
+              <StyledGroup>
+                <StyledTextField
+                  variant="standard"
+                  label="Email"
+                  value={formState.email}
+                  onChange={(e) => handleInputChange(e, "email")}
                 />
-              ) : (
-                <StyledDesktopDatePicker
-                  label="What Day"
-                  value={dayjs(formState.date) || dayjs()}
-                  onChange={(newValue: any) => {
-                    setFormState((prevState) => ({
-                      ...prevState,
-                      date: newValue,
-                    }));
-                  }}
+                <StyledTextField
+                  variant="standard"
+                  label="Phone Number"
+                  value={formState.number}
+                  onChange={(e) => handleInputChange(e, "number")}
                 />
-              )}
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              {isMobile ? (
-                <StyledMobileTimePicker
-                  label="What Time"
-                  value={dayjs(formState.time) || dayjs()}
-                  onChange={(newValue: any) => {
-                    setFormState((prevState) => ({
-                      ...prevState,
-                      time: newValue,
-                    }));
-                  }}
+              </StyledGroup>
+            </StyledField>
+            <StyledField>
+              <StyledGroupTitle>Address</StyledGroupTitle>
+              <StyledTextField
+                variant="standard"
+                label="Street"
+                sx={{ width: "100%" }}
+                value={formState.address.street}
+                onChange={(e) => handleInputChange(e, "address.street")}
+              />
+              <StyledGroup>
+                <StyledTextField
+                  variant="standard"
+                  label="City"
+                  value={formState.address.city}
+                  onChange={(e) => handleInputChange(e, "address.city")}
                 />
-              ) : (
-                <StyledDesktopTimePicker
-                  label="What Time"
-                  value={dayjs(formState.time) || dayjs()}
-                  onChange={(newValue: any) => {
-                    setFormState((prevState) => ({
-                      ...prevState,
-                      time: newValue,
-                    }));
-                  }}
+                <StyledTextField
+                  variant="standard"
+                  label="State"
+                  value={formState.address.state}
                 />
-              )}
-            </LocalizationProvider>
-          </StyledGroup>
-          <StyledTextField
-            variant="standard"
-            select
-            label="Service"
-            sx={{ width: "100%" }}
-            value={formState.service}
-            onChange={(e) =>
-              setFormState((prevState) => ({
-                ...prevState,
-                service: e.target.value,
-              }))
-            }
-          >
-            {currentServices.map((option, index: number) => (
-              <MenuItem key={index} value={option.name}>
-                {option.name}
-              </MenuItem>
-            ))}
-          </StyledTextField>
-        </StyledField>
-        {!isSubmitEnabled ? (
-          <Typography variant="caption" color="error">
-            Please fill out all fields before submitting
-          </Typography>
-        ) : (
-          <StyledButton variant="contained" onClick={handleSubmit}>
-            Submit
-          </StyledButton>
-        )}
-      </StyledFormBox>
+                <StyledTextField
+                  variant="standard"
+                  label="Zip"
+                  value={formState.address.zip}
+                  onChange={(e) => handleInputChange(e, "address.zip")}
+                />
+              </StyledGroup>
+            </StyledField>
+            <StyledField>
+              <StyledGroupTitle>When and which service?</StyledGroupTitle>
+              <StyledGroup>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  {isMobile ? (
+                    <StyledMobileDatePicker
+                      label="What Day"
+                      value={dayjs(formState.date) || dayjs()}
+                      onChange={(newValue: any) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          date: dayjs(newValue).format("DD-MMM-YY"),
+                        }));
+                      }}
+                    />
+                  ) : (
+                    <StyledDesktopDatePicker
+                      label="What Day"
+                      value={dayjs(formState.date) || dayjs()}
+                      onChange={(newValue: any) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          date: dayjs(newValue).format("DD-MMM-YY"),
+                        }));
+                      }}
+                    />
+                  )}
+                </LocalizationProvider>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  {isMobile ? (
+                    <StyledMobileTimePicker
+                      label="What Time"
+                      value={dayjs(formState.time) || dayjs()}
+                      onChange={(newValue: any) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          time: dayjs(newValue).format("hh:mm A"),
+                        }));
+                      }}
+                    />
+                  ) : (
+                    <StyledDesktopTimePicker
+                      label="What Time"
+                      value={dayjs(formState.time) || dayjs()}
+                      onChange={(newValue: any) => {
+                        setFormState((prevState) => ({
+                          ...prevState,
+                          time: dayjs(newValue).format("hh:mm A"),
+                        }));
+                      }}
+                    />
+                  )}
+                </LocalizationProvider>
+              </StyledGroup>
+              <StyledTextField
+                variant="standard"
+                select
+                label="Service"
+                sx={{ width: "100%" }}
+                value={formState.service}
+                onChange={(e) =>
+                  setFormState((prevState) => ({
+                    ...prevState,
+                    service: e.target.value,
+                  }))
+                }
+              >
+                {currentServices.map((option, index: number) => (
+                  <MenuItem key={index} value={option.name}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </StyledTextField>
+            </StyledField>
+            {!isSubmitEnabled ? (
+              <Typography variant="caption" color="error">
+                Please fill out all fields before submitting
+              </Typography>
+            ) : (
+              <StyledButton variant="contained" onClick={handleSubmit}>
+                Submit
+              </StyledButton>
+            )}
+          </StyledFormBox>
+        </>
+      ) : (
+        <StyledFormTitleBox className="form-submitted">
+          <StyledFormTitle>
+            Thank you for submitting your request, we will be in touch soon!
+          </StyledFormTitle>
+        </StyledFormTitleBox>
+      )}
     </StyledFormWrapper>
   );
 }
@@ -301,6 +324,11 @@ const StyledFormTitleBox = styled(Box)({
   justifyContent: "center",
   alignItems: "center",
   width: "100%",
+  "&.form-submitted": {
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 const StyledFormTitle = styled(Typography)({
