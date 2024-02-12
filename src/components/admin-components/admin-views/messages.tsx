@@ -243,6 +243,7 @@ const StyledContentBox = styled(Box)({
   flex: 1,
   width: "100%",
   height: "90%",
+  overflow: "hidden",
   "@media (max-width: 900px)": {
     flexDirection: "column",
     alignItems: "center",
@@ -259,7 +260,7 @@ const StyledCard = styled(Card)({
   width: "100%",
   height: "100%",
   color: "white",
-  overflowY: "auto",
+  overflow: "auto",
   "@media (max-width: 900px)": {
     width: "80%",
     marginBottom: "1rem",
