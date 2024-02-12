@@ -243,7 +243,6 @@ const StyledContentBox = styled(Box)({
   flex: 1,
   width: "100%",
   height: "90%",
-  overflow: "hidden",
   "@media (max-width: 900px)": {
     flexDirection: "column",
     alignItems: "center",
@@ -314,6 +313,7 @@ const StyledCardContentBox = styled(Box)({
   gap: "1rem",
   width: "100%",
   padding: "1rem",
+  height: "100%",
   overflowY: "auto",
   "@media (max-width: 600px)": {
     gridTemplateColumns: "repeat(auto-fill, minmax(100%, 1fr))",
