@@ -3,27 +3,37 @@ import { renderLoading } from "../../../helpers/loading-skeletons";
 import { useEffect, useState } from "react";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { firebase } from "../../../config/firebase";
-import { FlattenedData, fetchAnalyticsDataIfNeeded } from "../analytics-cache";
+import { FlattenedData, fetchAnalyticsDataIfNeeded } from "../cache/analytics-cache";
 import BarChart from "./bar-chart";
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(false);
+  const [gaError, setGAError] = useState<string | null>(null);
   const [analyticsData, setAnalyticsData] = useState<FlattenedData[] | null>(
     null
   );
 
   useEffect(() => {
+    fetchAnalyticsData();
+  }, []);
+
+  const fetchAnalyticsData = async () => {
+    setLoading(true);
     const functions = getFunctions(firebase);
     const fetchAnalytics = () =>
       httpsCallable(functions, "fetchAnalyticsData")();
 
     fetchAnalyticsDataIfNeeded(fetchAnalytics)
       .then((cachedData) => {
+        setLoading(false);
+        if(gaError) setGAError(null);
         setAnalyticsData(cachedData);
       })
-      .catch((error) => {
-        console.error("Error fetching analytics data:", error);
+      .catch(() => {
+        setLoading(false);
+        setGAError("Error fetching analytics data");
       });
-  }, []);
+  };
 
   return (
     <StyledDashboardWrapper>
@@ -31,10 +41,14 @@ export default function Dashboard() {
         <StyledCard>
           <StyledCardTitle>Site Traffic By City</StyledCardTitle>
           <StyledCardContent>
-            {analyticsData ? (
+            {gaError && (
+              <StyledNoContentBox>
+                <StyledErrorMessage>{gaError}</StyledErrorMessage>
+              </StyledNoContentBox>
+            )}
+            {loading && renderLoading()}
+            {analyticsData && !loading && !gaError && (
               <BarChart analyticsData={analyticsData} />
-            ) : (
-              renderLoading()
             )}
           </StyledCardContent>
         </StyledCard>
@@ -85,11 +99,27 @@ const StyledCard = styled(Card)({
   },
 });
 
+const StyledNoContentBox = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "100%",
+  height: "100%",
+  gap: "1rem",
+});
+
 const StyledCardTitle = styled(Typography)({
   fontSize: "1.5rem",
   fontWeight: "bold",
   marginBottom: "1rem",
   color: "white",
+});
+
+const StyledErrorMessage = styled(Typography)({
+  fontSize: "1.5rem",
+  fontWeight: "bold",
+  marginBottom: "1rem",
 });
 
 const StyledCardContent = styled(Box)({

@@ -18,6 +18,7 @@ import { getDatabase, ref /*update*/, remove, set } from "firebase/database";
 import { firebase } from "../../../config/firebase";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import EditModal from "./edit-modal";
 
 const DEFAULT_SERVICE: Service = {
   id: uuidv4(),
@@ -38,6 +39,7 @@ export default function Services({
   currentServices: Service[];
 }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedService, setSelectedService] =
     useState<Service>(DEFAULT_SERVICE);
   const open = Boolean(anchorEl);
@@ -56,10 +58,9 @@ export default function Services({
   const handleSelection = async (option: string) => {
     switch (option) {
       case "Edit":
-        console.log("Editing service...");
+        setEditModalOpen(true);
         break;
       case "Delete":
-        console.log("Deleting service...");
         await deleteService(selectedService.id);
         break;
       case "Duplicate":
@@ -103,19 +104,6 @@ export default function Services({
       });
   };
 
-  // const editService = async (serviceId: number, newData: Partial<Service>) => {
-  //   const database = getDatabase(firebase);
-  //   const serviceRef = ref(database, `/services/${serviceId - 1}`);
-
-  //   update(serviceRef, newData)
-  //     .then(() => {
-  //       console.log("Service updated successfully!");
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error updating service: ", error);
-  //     });
-  // };
-
   return (
     <StyledServicesWrapper>
       <StyledContentBox>
@@ -126,7 +114,7 @@ export default function Services({
               : currentServices.map((service) => (
                   <StyledServiceCard key={service.id}>
                     <StyledCardActionArea disableRipple>
-                      <StyledCardMedia image={service.imageURL} />
+                      <StyledCardMedia image={service.imageURL}/>
                       <StyledCardContent>
                         <StyledServiceCardTitle gutterBottom>
                           {service.name}
@@ -180,6 +168,12 @@ export default function Services({
           </StyledButton>
         </StyledCard>
       </StyledContentBox>
+      <EditModal
+        service={selectedService}
+        editModalOpen={editModalOpen}
+        setEditModalOpen={setEditModalOpen}
+        setSelectedService={setSelectedService}
+      />
     </StyledServicesWrapper>
   );
 }
@@ -254,7 +248,7 @@ const StyledCardContentBox = styled(Box)({
 const StyledServiceCard = styled(Card)({
   padding: "1rem",
   flex: "1 1 auto",
-  backgroundColor: "rgba(255, 255, 255, 0.1)",
+  backgroundColor: "rgba(255, 255, 255, 0.01)",
   border: "1px solid rgba(255, 255, 255, 0.2)",
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
   backdropFilter: "blur(10px)",
@@ -353,61 +347,6 @@ const StyledEditBox = styled(Box)({
   },
 });
 
-// const StyledTextField = styled(TextField)({
-//   width: "90%",
-//   margin: "0 auto",
-//   marginBottom: "2rem",
-//   "& .MuiInputBase-input": {
-//     color: "white",
-//   },
-//   "& .MuiInput-root": {
-//     "& input": {
-//       color: "white",
-//     },
-//     "& textarea": {
-//       color: "white",
-//     },
-//     "& select": {
-//       color: "white",
-//     },
-//     "&:before": {
-//       borderBottomColor: "white",
-//     },
-//     "&:hover:not(.Mui-disabled):before": {
-//       borderBottomColor: "white",
-//     },
-//     "&.Mui-focused:after": {
-//       borderBottomColor: "white",
-//     },
-//   },
-//   "& .MuiSelect-icon": {
-//     color: "white",
-//   },
-//   "& .MuiInputLabel-root": {
-//     color: "white",
-//     "&.Mui-focused": {
-//       color: "white",
-//     },
-//   },
-//   "@media (max-width: 600px)": {
-//     width: "90%",
-//   },
-// });
-
-// const StyledPair = styled(Box)({
-//   display: "flex",
-//   flexDirection: "row",
-//   alignItems: "center",
-//   width: "100%",
-//   gap: "1rem",
-//   "&.edit": {
-//     "@media (max-width: 600px)": {
-//       flexDirection: "column",
-//       gap: "0",
-//     },
-//   },
-// });
-
 // const StyledLabel = styled(Typography)({
 //   color: "white",
 //   fontWeight: "bold",
@@ -421,15 +360,4 @@ const StyledEditBox = styled(Box)({
 //     overflow: "hidden",
 //     textOverflow: "ellipsis",
 //   },
-// });
-
-// const StyledIconButtonWrapper = styled(Box)({
-//   display: "flex",
-//   flexDirection: "row",
-//   alignItems: "center",
-//   justifyContent: "center",
-//   gap: "1rem",
-//   "@media (max-width: 600px)": {
-//     gap: "0",
-//   },
-// });
+// })

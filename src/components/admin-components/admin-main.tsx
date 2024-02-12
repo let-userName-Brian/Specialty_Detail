@@ -27,6 +27,11 @@ import InfoIcon from "@mui/icons-material/Info";
 import { Service } from "../../App";
 import Testimonies from "./admin-views/testimonies";
 import AboutAdmin from "./admin-views/about-admin";
+import SettingsIcon from "@mui/icons-material/Settings";
+import Settings from "./admin-views/settings";
+import { getAuth, signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { loggedInUserSetter } from "./cache/logged-in";
 
 const DrawerWidth = 240;
 const MainContent = styled("main")<{ open: boolean }>(({ open }) => ({
@@ -43,13 +48,17 @@ const options = [
   { icon: <ReviewsIcon />, text: "Testimonies" },
   { icon: <InfoIcon />, text: "About" },
   { icon: <ForumIcon />, text: "Messages" },
+  { icon: <SettingsIcon />, text: "Settings" },
 ];
 
 export default function AdminMain({
   currentServices,
+  calendarUrl,
 }: {
   currentServices: Service[];
+  calendarUrl: string;
 }) {
+  const router = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
@@ -82,9 +91,23 @@ export default function AdminMain({
         return <AboutAdmin />;
       case 4:
         return <Messages />;
+      case 5:
+        return <Settings calendarUrl={calendarUrl} />;
       default:
         return <Dashboard />;
     }
+  };
+
+  const auth = getAuth();
+  const handleLogout = async () => {
+    signOut(auth)
+      .then(() => {
+        loggedInUserSetter(null);
+        router("/login");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   const drawer = (
@@ -114,7 +137,7 @@ export default function AdminMain({
           <StyledListItemIcon>
             <LogoutIcon />
           </StyledListItemIcon>
-          <StyledListItemText primary="Logout" />
+          <StyledListItemText primary="Logout" onClick={() => handleLogout()} />
         </StyledListItem>
       </StyledLogoutBox>
     </StyledDrawer>

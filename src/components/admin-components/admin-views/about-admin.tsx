@@ -13,7 +13,7 @@ import {
 import { renderLoading } from "../../../helpers/loading-skeletons";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export default function AboutAdmin() {
   const [currentAbout, setCurrentAbout] = useState({
@@ -103,22 +103,23 @@ export default function AboutAdmin() {
                     value={editState.values.title}
                     onChange={(e) => handleChange("title", e.target.value)}
                   />
+
                   <StyledIconButtonWrapper>
-                    <IconButton onClick={() => saveChanges("title")}>
-                      <CheckIcon color="primary" />
-                    </IconButton>
                     <IconButton onClick={() => toggleEdit("title")}>
-                      <CloseIcon color="secondary" />
+                      <StyledClearIcon />
+                    </IconButton>
+                    <IconButton onClick={() => saveChanges("title")}>
+                      <StyledCheckIcon />
                     </IconButton>
                   </StyledIconButtonWrapper>
                 </StyledPair>
               ) : (
-                <StyledBody>
-                  {currentAbout.title}
+                <StyledTextPair>
+                  <StyledBody>{currentAbout.title}</StyledBody>
                   <StyledIconButton onClick={() => toggleEdit("title")}>
                     <EditIcon />
                   </StyledIconButton>
-                </StyledBody>
+                </StyledTextPair>
               )}
             </StyledAboutSection>
             <StyledAboutSection>
@@ -141,21 +142,21 @@ export default function AboutAdmin() {
                     }
                   />
                   <StyledIconButtonWrapper>
-                    <IconButton onClick={() => saveChanges("description")}>
-                      <CheckIcon color="primary" />
-                    </IconButton>
                     <IconButton onClick={() => toggleEdit("description")}>
-                      <CloseIcon color="secondary" />
+                      <StyledClearIcon />
+                    </IconButton>
+                    <IconButton onClick={() => saveChanges("description")}>
+                      <StyledCheckIcon />
                     </IconButton>
                   </StyledIconButtonWrapper>
                 </StyledPair>
               ) : (
-                <StyledBody>
-                  {currentAbout.description}
+                <StyledTextPair>
+                  <StyledBody>{currentAbout.description}</StyledBody>
                   <StyledIconButton onClick={() => toggleEdit("description")}>
                     <EditIcon />
                   </StyledIconButton>
-                </StyledBody>
+                </StyledTextPair>
               )}
             </StyledAboutSection>
             <StyledAboutSection>
@@ -176,21 +177,21 @@ export default function AboutAdmin() {
                     onChange={(e) => handleChange("continued", e.target.value)}
                   />
                   <StyledIconButtonWrapper>
-                    <IconButton onClick={() => saveChanges("continued")}>
-                      <CheckIcon color="primary" />
-                    </IconButton>
                     <IconButton onClick={() => toggleEdit("continued")}>
-                      <CloseIcon color="secondary" />
+                      <StyledClearIcon />
+                    </IconButton>
+                    <IconButton onClick={() => saveChanges("continued")}>
+                      <StyledCheckIcon />
                     </IconButton>
                   </StyledIconButtonWrapper>
                 </StyledPair>
               ) : (
-                <StyledBody>
-                  {currentAbout.continued}
+                <StyledTextPair>
+                  <StyledBody>{currentAbout.continued}</StyledBody>
                   <StyledIconButton onClick={() => toggleEdit("continued")}>
                     <EditIcon />
                   </StyledIconButton>
-                </StyledBody>
+                </StyledTextPair>
               )}
             </StyledAboutSection>
           </StyledCardContentBox>
@@ -254,6 +255,16 @@ const StyledBody = styled(Typography)({
   },
 });
 
+const StyledTextPair = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "1rem",
+  width: "100%",
+  padding: "1rem",
+});
+
 const StyledTextField = styled(TextField)({
   width: "90%",
   margin: "0 auto",
@@ -285,7 +296,7 @@ const StyledTextField = styled(TextField)({
 
 const StyledPair = styled(Box)({
   display: "flex",
-  flexDirection: "row",
+  flexDirection: "column",
   alignItems: "center",
   width: "100%",
   padding: "1rem",
@@ -303,10 +314,10 @@ const StyledAboutSection = styled(Box)({
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
   borderRadius: "1rem",
   width: "100%",
-  height: "30%",
+  minHeight: "30%",
   padding: "1rem",
   "@media (max-width: 600px)": {
-    height: "max-content",
+    minHeight: "auto",
   },
 });
 
@@ -324,5 +335,14 @@ const StyledIconButtonWrapper = styled(Box)({
 
 const StyledIconButton = styled(IconButton)({
   color: "white",
-  marginLeft: "auto",
+});
+
+const StyledClearIcon = styled(ClearIcon)({
+  color: "rgba(255, 0, 0, 0.5)",
+  fontSize: "2rem",
+});
+
+const StyledCheckIcon = styled(CheckIcon)({
+  color: "rgba(160,32,240)",
+  fontSize: "2rem",
 });

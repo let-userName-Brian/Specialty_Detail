@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Box, Skeleton, styled } from "@mui/material";
 import Navbar from "./components/navbar";
@@ -11,6 +16,7 @@ import {
   ref as storageRef,
   getDownloadURL,
 } from "firebase/storage";
+import { loggedInUser } from "./components/admin-components/cache/logged-in";
 
 const About = lazy(() => import("./components/about"));
 const Schedule = lazy(() => import("./components/schedule"));
@@ -18,6 +24,10 @@ const Services = lazy(() => import("./components/services"));
 const Testimonials = lazy(() => import("./components/testimonials"));
 const Admin = lazy(() => import("./components/admin-components/admin-main"));
 const Login = lazy(() => import("./components/admin-components/login"));
+
+interface ProtectedRouteProps {
+  children: JSX.Element;
+}
 
 export type Service = {
   id: number;
@@ -30,6 +40,7 @@ export type Service = {
 
 export interface ServicesProps {
   currentServices: Service[];
+  calendarUrl: string;
 }
 
 export default function App() {
@@ -38,6 +49,7 @@ export default function App() {
   const testimonialsRef = useRef<HTMLElement>(null);
   const scheduleRef = useRef<HTMLElement>(null);
   const [currentServices, setCurrentServices] = useState<Service[]>([]);
+  const [calendarUrl, setCalendarUrl] = useState<string>("");
 
   useEffect(() => {
     const database = getDatabase(firebase);
@@ -59,6 +71,33 @@ export default function App() {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const database = getDatabase(firebase);
+    const dbRef = ref(database, "/calendar");
+
+    const unsubscribe = onValue(
+      dbRef,
+      (snapshot) => {
+        const dbData = snapshot.val();
+        if (dbData) {
+          setCalendarUrl(dbData.public_url);
+        }
+      },
+      {
+        onlyOnce: true,
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+
+  const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+    if (!loggedInUser) {
+      return <Navigate to="/login" replace />;
+    }
+
+    return children;
+  };
 
   return (
     <Router>
@@ -88,11 +127,13 @@ export default function App() {
                   <Services
                     ref={servicesRef}
                     currentServices={currentServices}
+                    calendarUrl={calendarUrl}
                   />
                   <Testimonials ref={testimonialsRef} />
                   <Schedule
                     ref={scheduleRef}
                     currentServices={currentServices}
+                    calendarUrl={calendarUrl}
                   />
                 </Suspense>
                 <Footer />
@@ -127,7 +168,12 @@ export default function App() {
                   />
                 }
               >
-                <Admin currentServices={currentServices} />
+                <ProtectedRoute>
+                  <Admin
+                    currentServices={currentServices}
+                    calendarUrl={calendarUrl}
+                  />
+                </ProtectedRoute>
               </Suspense>
             }
           />

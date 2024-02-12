@@ -1,15 +1,26 @@
 import { Box, Button, TextField, Typography, styled } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { loggedInUserSetter } from "./cache/logged-in";
 
 export default function Login() {
   const router = useNavigate();
-  const [username, setUsername] = useState("");
+  const auth = getAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = () => {
-    console.log(username, password);
-    router("/admin");
+  const handleLogin = async () => {
+    await signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        loggedInUserSetter(userCredential.user);
+        setError("");
+        router("/admin");
+      })
+      .catch((error) => {
+        setError(error.code);
+      });
   };
 
   return (
@@ -21,9 +32,9 @@ export default function Login() {
         <StyledLoginFormBox>
           <StyledTextField
             variant="standard"
-            label="Username"
-            onChange={(e) => setUsername(e.target.value)}
-            value={username}
+            label="Email"
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
           />
           <StyledTextField
             variant="standard"
@@ -39,6 +50,15 @@ export default function Login() {
           >
             Login
           </StyledButton>
+          {error && (
+            <Typography color="error">
+              {error === "auth/user-not-found"
+                ? "User not found"
+                : error === "auth/wrong-password"
+                ? "Wrong password"
+                : "An error occurred"}
+            </Typography>
+          )}
         </StyledLoginFormBox>
       </StyledLoginCard>
     </StyledLoginWrapper>

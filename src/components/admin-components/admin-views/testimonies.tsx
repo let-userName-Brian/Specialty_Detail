@@ -1,5 +1,14 @@
-import { getDatabase, ref, onValue, update } from "firebase/database";
-import { useEffect, useState } from "react";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  update,
+  query,
+  orderByKey,
+  startAfter,
+  limitToLast,
+} from "firebase/database";
+import { useEffect, useRef, useState } from "react";
 import { firebase } from "../../../config/firebase";
 import { Review } from "../../testimonials";
 import {
@@ -19,16 +28,11 @@ export default function Testimonies() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [filteredReviews, setFilteredReviews] = useState<Review[]>([]);
   const [filterOn, setFilterOn] = useState("shown");
+  const [lastKey, setLastKey] = useState<string | null>(null);
+  const cardBodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const database = getDatabase(firebase);
-    const dbRef = ref(database, "/testimonials");
-
-    const unsubscribe = onValue(dbRef, (snapshot) => {
-      const dbData: Review[] = snapshot.val();
-      setReviews(dbData);
-    });
-    return () => unsubscribe();
+    fetchReviews();
   }, []);
 
   useEffect(() => {
@@ -64,6 +68,50 @@ export default function Testimonies() {
     });
   };
 
+  const fetchReviews = async (lastKey: string | null = null) => {
+    const database = getDatabase(firebase);
+    let reviewsQuery;
+
+    if (lastKey) {
+      reviewsQuery = query(
+        ref(database, "/testimonials"),
+        orderByKey(),
+        startAfter(lastKey),
+        limitToLast(3)
+      );
+    } else {
+      reviewsQuery = query(
+        ref(database, "/testimonials"),
+        orderByKey(),
+        limitToLast(3)
+      );
+    }
+
+    onValue(
+      reviewsQuery,
+      (snapshot) => {
+        const data = snapshot.val() || {};
+        const fetchedReviews = Object.values(data) as Review[];
+        if (fetchedReviews.length > 0) {
+          setReviews((prevReviews) => [...prevReviews, ...fetchedReviews]);
+          const keys = Object.keys(data);
+          setLastKey(keys[keys.length - 1]);
+        }
+      },
+      {
+        onlyOnce: true,
+      }
+    );
+  };
+
+  const handleScroll = () => {
+    if (!cardBodyRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = cardBodyRef.current;
+    if (scrollHeight - scrollTop <= clientHeight * 1.1) {
+      fetchReviews(lastKey);
+    }
+  };
+
   return (
     <StyledTestimonialsWrapper>
       <StyledContentBox>
@@ -87,7 +135,7 @@ export default function Testimonies() {
               />
             </RadioGroup>
           </FormControl>
-          <StyledCardBody>
+          <StyledCardBody onScroll={handleScroll} ref={cardBodyRef}>
             {filteredReviews.map((review, index) => (
               <StyledTestimony key={index}>
                 <Typography variant="h6">{review.label}</Typography>
@@ -167,7 +215,7 @@ const StyledCard = styled(Card)({
   },
   "@media (max-width: 600px)": {
     width: "100%",
-    padding: '1rem'
+    padding: "1rem",
   },
 });
 
@@ -183,7 +231,7 @@ const StyledCardBody = styled(Box)({
   gap: "1rem",
   width: "100%",
   height: "100%",
-  overflow: "auto",
+  overflowY: "auto",
   padding: "1rem",
 });
 

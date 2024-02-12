@@ -5,11 +5,11 @@ import { forwardRef } from "react";
 import { ServicesProps } from "../App";
 
 const Schedule = forwardRef<HTMLElement, ServicesProps>((props, ref) => {
-  const { currentServices } = props;
+  const { currentServices, calendarUrl } = props;
   return (
     <StyledScheduleWrapper ref={ref}>
       <StyledCustomCard>
-        <CalendarComp />
+        <CalendarComp calendarUrl={calendarUrl}/>
       </StyledCustomCard>
       <StyledCustomCard>
         <ScheduleForm currentServices={currentServices}/>

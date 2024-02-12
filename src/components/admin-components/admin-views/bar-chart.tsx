@@ -8,7 +8,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { FlattenedData } from "../analytics-cache";
+import { FlattenedData } from "../cache/analytics-cache";
 import { useEffect, useState } from "react";
 
 ChartJS.register(

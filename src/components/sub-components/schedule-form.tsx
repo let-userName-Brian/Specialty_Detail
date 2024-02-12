@@ -21,7 +21,9 @@ import {
 import { getDatabase, ref, set } from "firebase/database";
 import { firebase } from "../../config/firebase";
 import { v4 as uuidv4 } from "uuid";
-export interface Form {
+export interface Message {
+  id: string;
+  receivedDate: Date;
   name: string;
   email: string;
   number: string;
@@ -34,9 +36,12 @@ export interface Form {
   date: any;
   time: any;
   service: string;
+  read: boolean;
 }
 
-const initialFormState: Form = {
+const initialFormState: Message = {
+  id: "",
+  receivedDate: new Date(),
   name: "",
   email: "",
   number: "",
@@ -49,6 +54,7 @@ const initialFormState: Form = {
   date: "",
   time: "",
   service: "",
+  read: false,
 };
 
 const validateEmail = (email: string): boolean => {
@@ -65,7 +71,7 @@ const formatPhoneNumber = (number: string): string => {
   return number;
 };
 
-const isFormValid = (form: Form): boolean => {
+const isFormValid = (form: Message): boolean => {
   return (
     form.name.trim() !== "" &&
     validateEmail(form.email) &&
@@ -84,7 +90,7 @@ export default function ScheduleForm({
 }: {
   currentServices: Service[];
 }) {
-  const [formState, setFormState] = useState<Form>(initialFormState);
+  const [formState, setFormState] = useState<Message>(initialFormState);
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -113,7 +119,7 @@ export default function ScheduleForm({
     const { value } = e.target;
     let formattedValue = value;
     if (key.startsWith("address.")) {
-      const addressKey = key.split(".")[1] as keyof Form["address"];
+      const addressKey = key.split(".")[1] as keyof Message["address"];
       if (addressKey) {
         const updatedAddress = {
           ...formState.address,
@@ -137,7 +143,8 @@ export default function ScheduleForm({
     const database = getDatabase(firebase);
     const id = uuidv4();
     const newServiceRef = ref(database, `/messages/${id}`);
-    set(newServiceRef, formState)
+
+    set(newServiceRef, { ...formState, id })
       .then(() => {
         setFormSubmitted(true);
         setFormState(initialFormState);
@@ -146,7 +153,6 @@ export default function ScheduleForm({
       .catch((error) => {
         console.error("Error adding new message: ", error);
       });
-
   };
 
   return (
