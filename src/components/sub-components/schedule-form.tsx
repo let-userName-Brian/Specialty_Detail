@@ -23,7 +23,7 @@ import { firebase } from "../../config/firebase";
 import { v4 as uuidv4 } from "uuid";
 export interface Message {
   id: string;
-  receivedDate: Date;
+  receivedDate: string;
   name: string;
   email: string;
   number: string;
@@ -41,7 +41,7 @@ export interface Message {
 
 const initialFormState: Message = {
   id: "",
-  receivedDate: new Date(),
+  receivedDate: '',
   name: "",
   email: "",
   number: "",
@@ -142,9 +142,10 @@ export default function ScheduleForm({
     e.preventDefault();
     const database = getDatabase(firebase);
     const id = uuidv4();
+    const date = new Date().toISOString();
     const newServiceRef = ref(database, `/messages/${id}`);
 
-    set(newServiceRef, { ...formState, id })
+    set(newServiceRef, { ...formState, id, receivedDate: date })
       .then(() => {
         setFormSubmitted(true);
         setFormState(initialFormState);
