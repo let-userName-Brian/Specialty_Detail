@@ -313,7 +313,6 @@ const StyledCardContentBox = styled(Box)({
   gap: "1rem",
   width: "100%",
   padding: "1rem",
-  height: "100%",
   overflowY: "auto",
   "@media (max-width: 600px)": {
     gridTemplateColumns: "repeat(auto-fill, minmax(100%, 1fr))",
@@ -328,7 +327,7 @@ const StyledMessageCard = styled(Card)({
   backdropFilter: "blur(10px)",
   borderRadius: "1rem",
   width: "100%",
-  height: "auto",
+  height: "100%",
   color: "white",
   display: "flex",
   flexDirection: "column",
