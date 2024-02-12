@@ -151,7 +151,7 @@ export default function Messages() {
   return (
     <StyledMessageWrapper>
       <StyledContentBox>
-        <StyledCard>
+        <StyledCard onScroll={handleScroll} ref={messageBoxRef}>
           <StyledTitleBox>
             <StyledCardTitle>Messages</StyledCardTitle>
             <StyledTextField
@@ -167,7 +167,7 @@ export default function Messages() {
               <StyledErrorMessage>{loadingError}</StyledErrorMessage>
             </StyledNoContentBox>
           )}
-          <StyledCardContentBox onScroll={handleScroll} ref={messageBoxRef}>
+          <StyledCardContentBox>
             {Object.keys(messages).length > 0 &&
               !loading &&
               !loadingError &&
@@ -259,6 +259,7 @@ const StyledCard = styled(Card)({
   width: "100%",
   height: "100%",
   color: "white",
+  overflowY: "auto",
   "@media (max-width: 900px)": {
     width: "80%",
     marginBottom: "1rem",
