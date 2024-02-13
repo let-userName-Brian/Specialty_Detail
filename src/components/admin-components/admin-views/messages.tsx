@@ -145,7 +145,10 @@ export default function Messages() {
   const handleScroll = () => {
     if (!messageBoxRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = messageBoxRef.current;
-    if (scrollHeight - scrollTop <= clientHeight * 1.1) fetchMessages(lastKey);
+    if (scrollHeight - scrollTop <= clientHeight * 1.1)
+      debounce(() => {
+        fetchMessages(lastKey);
+      }, 200);
   };
 
   return (
@@ -174,49 +177,51 @@ export default function Messages() {
               Object.entries(messages).map(([monthYear, messages]) => (
                 <section key={monthYear}>
                   <StyledMonth>{monthYear}</StyledMonth>
-                  {messages.map((message, index) => (
-                    <StyledMessageCard key={index}>
-                      <StyledCardContent>
-                        <StyledName>{message.name}</StyledName>
-                        <StyledPair>
-                          <StyledLabel>Phone:</StyledLabel>
-                          <StyledValue>{message.number}</StyledValue>
-                        </StyledPair>
-                        <StyledPair>
-                          <StyledLabel>Email:</StyledLabel>
-                          <StyledValue>{message.email}</StyledValue>
-                        </StyledPair>
-                        <StyledRequestBox>
-                          <StyledValue sx={{ textAlign: "center" }}>
-                            What / When:
-                          </StyledValue>
+                  <StyledMessagesBox>
+                    {messages.map((message, index) => (
+                      <StyledMessageCard key={index}>
+                        <StyledCardContent>
+                          <StyledName>{message.name}</StyledName>
                           <StyledPair>
-                            <StyledLabel>Service:</StyledLabel>
-                            <StyledValue>{message.service}</StyledValue>
+                            <StyledLabel>Phone:</StyledLabel>
+                            <StyledValue>{message.number}</StyledValue>
                           </StyledPair>
                           <StyledPair>
-                            <StyledLabel>Date:</StyledLabel>
-                            <StyledValue>{message.date}</StyledValue>
+                            <StyledLabel>Email:</StyledLabel>
+                            <StyledValue>{message.email}</StyledValue>
                           </StyledPair>
-                          <StyledPair>
-                            <StyledLabel>Time:</StyledLabel>
-                            <StyledValue>{message.time}</StyledValue>
-                          </StyledPair>
-                        </StyledRequestBox>
-                        <StyledRequestBox>
-                          <StyledValue sx={{ textAlign: "center" }}>
-                            Where:
-                          </StyledValue>
-                          <StyledValue sx={{ textAlign: "center" }}>
-                            {message.address.street}
-                          </StyledValue>
-                          <StyledValue sx={{ textAlign: "center" }}>
-                            {message.address.city}, {message.address.zip}
-                          </StyledValue>
-                        </StyledRequestBox>
-                      </StyledCardContent>
-                    </StyledMessageCard>
-                  ))}
+                          <StyledRequestBox>
+                            <StyledValue sx={{ textAlign: "center" }}>
+                              What / When:
+                            </StyledValue>
+                            <StyledPair>
+                              <StyledLabel>Service:</StyledLabel>
+                              <StyledValue>{message.service}</StyledValue>
+                            </StyledPair>
+                            <StyledPair>
+                              <StyledLabel>Date:</StyledLabel>
+                              <StyledValue>{message.date}</StyledValue>
+                            </StyledPair>
+                            <StyledPair>
+                              <StyledLabel>Time:</StyledLabel>
+                              <StyledValue>{message.time}</StyledValue>
+                            </StyledPair>
+                          </StyledRequestBox>
+                          <StyledRequestBox>
+                            <StyledValue sx={{ textAlign: "center" }}>
+                              Where:
+                            </StyledValue>
+                            <StyledValue sx={{ textAlign: "center" }}>
+                              {message.address.street}
+                            </StyledValue>
+                            <StyledValue sx={{ textAlign: "center" }}>
+                              {message.address.city}, {message.address.zip}
+                            </StyledValue>
+                          </StyledRequestBox>
+                        </StyledCardContent>
+                      </StyledMessageCard>
+                    ))}
+                  </StyledMessagesBox>
                 </section>
               ))}
           </StyledCardContentBox>
@@ -259,7 +264,7 @@ const StyledCard = styled(Card)({
   width: "100%",
   height: "100%",
   color: "white",
-  overflow: "auto",
+  overflow: "auto", //scroll
   "@media (max-width: 900px)": {
     width: "80%",
     marginBottom: "1rem",
@@ -307,33 +312,30 @@ const StyledErrorMessage = styled(Typography)({
 });
 
 const StyledCardContentBox = styled(Box)({
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(23%, 1fr))",
-  gridAutoRows: "minmax(350px, auto)",
+  display: "flex",
+  flexDirection: "column",
   gap: "1rem",
   width: "100%",
   padding: "1rem",
-  overflowY: "auto",
   "@media (max-width: 600px)": {
+    display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(100%, 1fr))",
     padding: 0,
   },
 });
 
 const StyledMessageCard = styled(Card)({
-  backgroundColor: "rgba(255, 255, 255, 0.1)",
-  border: "1px solid rgba(255, 255, 255, 0.2)",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  backdropFilter: "blur(10px)",
-  borderRadius: "1rem",
-  width: "100%",
+  width: "20%",
   height: "100%",
   color: "white",
   display: "flex",
   flexDirection: "column",
   padding: "1rem",
-  overflow: "auto",
-  marginBottom: "1rem",
+  backgroundColor: "rgba(255, 255, 255, 0.1)",
+  border: "1px solid rgba(255, 255, 255, 0.2)",
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  backdropFilter: "blur(10px)",
+  borderRadius: "1rem",
   "@media (max-width: 600px)": {
     width: "100%",
   },
@@ -364,6 +366,13 @@ const StyledMonth = styled(Typography)({
   marginBottom: "1rem",
   color: "white",
   fontStyle: "italic",
+});
+
+const StyledMessagesBox = styled(Box)({
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: "1rem",
 });
 
 const StyledPair = styled(Box)({
