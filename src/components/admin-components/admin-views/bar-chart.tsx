@@ -93,6 +93,18 @@ export default function BarChart({
       },
     },
     indexAxis: isMobile ? "y" : "x",
+    maintainAspectRatio: false,
+    responsive: true,
+    aspectRatio: 1,
+    layout: {
+      padding: {
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+      },
+    },
+
   };
 
   return <Bar data={chartData} options={chartOptions} />;
