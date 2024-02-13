@@ -41,7 +41,7 @@ export interface Message {
 
 const initialFormState: Message = {
   id: "",
-  receivedDate: '',
+  receivedDate: "",
   name: "",
   email: "",
   number: "",
@@ -173,20 +173,22 @@ export default function ScheduleForm({
                 onChange={(e) => handleInputChange(e, "name")}
                 sx={{ width: "100%" }}
               />
-              <StyledGroup>
+              <StyledContactGroup>
                 <StyledTextField
+                  className="contact"
                   variant="standard"
                   label="Email"
                   value={formState.email}
                   onChange={(e) => handleInputChange(e, "email")}
                 />
                 <StyledTextField
+                  className="contact"
                   variant="standard"
                   label="Phone Number"
                   value={formState.number}
                   onChange={(e) => handleInputChange(e, "number")}
                 />
-              </StyledGroup>
+              </StyledContactGroup>
             </StyledField>
             <StyledField>
               <StyledGroupTitle>Address</StyledGroupTitle>
@@ -385,6 +387,17 @@ const StyledGroup = styled(Box)({
   gap: "1rem",
 });
 
+const StyledContactGroup = styled(Box)({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+  width: "100%",
+  gap: "1rem",
+  "@media (max-width: 600px)": {
+    flexDirection: "column",
+  },
+});
+
 const StyledGroupTitle = styled(Typography)({
   fontSize: "1rem",
   fontWeight: "bold",
@@ -434,6 +447,11 @@ const StyledTextField = styled(TextField)({
     },
     "&.Mui-disabled": {
       color: "white", // Ensure disabled label is white
+    },
+  },
+  "@media (max-width: 600px)": {
+    "&.contact": {
+      width: "100%",
     },
   },
 });
