@@ -18,9 +18,24 @@ exports.fetchAnalyticsData = functions.https.onCall(async (data, context) => {
     const [reportResponse] = await analyticsDataClient.runReport({
       property: `properties/${privateGtag}`,
       dateRanges: [{ startDate: "2022-01-01", endDate: "today" }],
-      dimensions: [{ name: "city" }],
+      dimensions: [{ name: "city" }, { name: "region" }],
       metrics: [{ name: "activeUsers" }],
+      dimensionFilter: {
+        andGroup: {
+          expressions: [
+            {
+              filter: {
+                fieldName: "region",
+                stringFilter: {
+                  value: "Georgia"
+                }
+              }
+            }
+          ]
+        }
+      }
     });
+    
     return reportResponse;
   } catch (error) {
     console.error("Error fetching analytics data:", error);
