@@ -41,7 +41,7 @@ export default function EditModal({
   const [tempState, setTempState] = useState({
     name: "",
     description: "",
-    cost: 0,
+    cost: "$0",
   });
 
   useEffect(() => {
@@ -51,6 +51,40 @@ export default function EditModal({
       cost: service.cost,
     });
   }, [service]);
+
+  const handleAdditionalFileChange = async (event: any) => {
+    const database = getDatabase(firebase);
+    const storage = getStorage(firebase);
+
+    const file = event.target.files[0];
+    if (!file) {
+      return;
+    }
+
+    const newImagePath = `services_images/${file.name}`;
+    const imageRef = storageRef(storage, newImagePath);
+
+    try {
+      await uploadBytes(imageRef, file);
+      const newImageURL = await getDownloadURL(imageRef);
+      const serviceRef = ref(database, `services/${service.id}`);
+
+      await update(serviceRef, {
+        additionalImage: newImagePath,
+        additionalImageURL: newImageURL,
+      });
+
+      const updatedService = {
+        ...service,
+        additionalImage: newImagePath,
+        additionalImageURL: newImageURL,
+      };
+      setSelectedService(updatedService);
+      console.log("Additional Image uploaded and service updated successfully");
+    } catch (error) {
+      console.error("Error uploading image: ", error);
+    }
+  };
 
   const handleFileChange = async (event) => {
     const database = getDatabase(firebase);
@@ -66,16 +100,20 @@ export default function EditModal({
 
     try {
       await uploadBytes(imageRef, file);
-
       const newImageURL = await getDownloadURL(imageRef);
       const serviceRef = ref(database, `services/${service.id}`);
-      await update(serviceRef, { image: newImagePath, imageURL: newImageURL });
+
+      await update(serviceRef, {
+        image: newImagePath,
+        imageURL: newImageURL,
+      });
 
       const updatedService = {
         ...service,
         image: newImagePath,
         imageURL: newImageURL,
       };
+
       setSelectedService(updatedService);
 
       console.log("Image uploaded and service updated successfully");
@@ -84,8 +122,8 @@ export default function EditModal({
     }
   };
 
-  const handleClick = () => {
-    document.getElementById("hiddenFileInput")?.click();
+  const handleClick = (id: string) => {
+    document.getElementById(id)?.click();
   };
 
   const handleSave = async (state: string) => {
@@ -113,22 +151,55 @@ export default function EditModal({
       aria-describedby="Edit Service"
     >
       <StyledModalBox>
-        <StyledImagePair>
-          <StyledImage
-            src={service.imageURL}
-            alt={service.name}
-            loading="lazy"
-          />
-          <StyledButton variant="contained" onClick={() => handleClick()}>
-            Change Photo
-          </StyledButton>
-          <input
-            type="file"
-            id="hiddenFileInput"
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-          />
-        </StyledImagePair>
+        <Box>
+          <StyledImagePair>
+            <StyledImage
+              src={service.imageURL}
+              alt={service.name}
+              loading="lazy"
+            />
+            <StyledButton
+              variant="contained"
+              onClick={() => handleClick("hiddenFileInput")}
+            >
+              Change Photo
+            </StyledButton>
+            <input
+              type="file"
+              id="hiddenFileInput"
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+            />
+          </StyledImagePair>
+          <StyledImagePair>
+            {service.additionalImageURL && (
+              <StyledImage
+                src={service.additionalImageURL}
+                alt={service.additionalImage}
+                loading="lazy"
+              />
+            )}
+            <StyledButton
+              variant="contained"
+              onClick={() => handleClick("hiddenAdditionalFileInput")}
+              sx={{
+                width: "60%",
+                "@ media (max-width: 600px)": {
+                  width: "50%",
+                  height: "3rem",
+                },
+              }}
+            >
+              {service.additionalImageURL ? "Alter" : "Add"} Additional Photo
+            </StyledButton>
+            <input
+              type="file"
+              id="hiddenAdditionalFileInput"
+              onChange={handleAdditionalFileChange}
+              style={{ display: "none" }}
+            />
+          </StyledImagePair>
+        </Box>
         <StyledPair>
           {editState.name ? (
             <StyledPair>
@@ -217,7 +288,7 @@ export default function EditModal({
                 onChange={(event) =>
                   setTempState({
                     ...tempState,
-                    cost: +event.target.value,
+                    cost: event.target.value,
                   })
                 }
               />
@@ -235,7 +306,7 @@ export default function EditModal({
               <StyledTitleBox>
                 <StyledHeader>Cost:</StyledHeader>
                 <StyledValue sx={{ color: "green" }}>
-                  ${tempState.cost}
+                  {tempState.cost}
                 </StyledValue>
               </StyledTitleBox>
               <IconButton

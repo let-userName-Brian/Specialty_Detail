@@ -24,7 +24,7 @@ const DEFAULT_SERVICE: Service = {
   id: uuidv4(),
   name: "DEFAULT SERVICE NAME",
   description: "DEFAULT SERVICE DESCRIPTION",
-  cost: 0,
+  cost: "0",
   image:
     "gs://specialty-detail.appspot.com/services_images/full-detail-BbKdWSxI.png",
   imageURL: "DEFAULT IMAGE URL",
@@ -114,7 +114,7 @@ export default function Services({
               : currentServices.map((service) => (
                   <StyledServiceCard key={service.id}>
                     <StyledCardActionArea disableRipple>
-                      <StyledCardMedia image={service.imageURL}/>
+                      <StyledCardMedia image={service.imageURL} />
                       <StyledCardContent>
                         <StyledServiceCardTitle gutterBottom>
                           {service.name}
@@ -122,7 +122,7 @@ export default function Services({
                         <StyledCardDescription>
                           {service.description}
                         </StyledCardDescription>
-                        <StyledCardPrice>${service.cost}</StyledCardPrice>
+                        <StyledCardPrice>{service.cost}</StyledCardPrice>
                       </StyledCardContent>
                     </StyledCardActionArea>
                     <StyledEditBox>
@@ -227,9 +227,14 @@ const StyledCard = styled(Card)({
 });
 
 const StyledCardContentBox = styled(Box)({
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(20%, 1fr))",
-  gridAutoRows: "minmax(90%, auto)",
+  // display: "grid",
+  // gridTemplateColumns: "repeat(auto-fill, minmax(20%, 1fr))",
+  // gridAutoRows: "minmax(90%, auto)",
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "center",
+
   gap: "1rem",
   width: "100%",
   height: "100%",
@@ -247,13 +252,13 @@ const StyledCardContentBox = styled(Box)({
 
 const StyledServiceCard = styled(Card)({
   padding: "1rem",
-  flex: "1 1 auto",
   backgroundColor: "rgba(255, 255, 255, 0.01)",
   border: "1px solid rgba(255, 255, 255, 0.2)",
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
   backdropFilter: "blur(10px)",
   borderRadius: "3rem",
-  height: "100%",
+  minHeight: "clamp(25rem, 50vh, 25rem)",
+  width: "clamp(25rem, 50vw, 15rem)",
 });
 
 const StyledCardActionArea = styled(CardActionArea)({
@@ -269,11 +274,15 @@ const StyledCardActionArea = styled(CardActionArea)({
 });
 
 const StyledCardMedia = styled(CardMedia)({
-  width: "100%",
-  height: "40%",
+  width: "clamp(23rem, 50vw, 23rem)",
+  height: "clamp(15rem, 50vw, 20rem)",
   borderRadius: "3rem",
   border: "1px solid rgba(255, 255, 255, 0.2)",
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  "@media (max-width: 600px)": {
+    width: "95%",
+    height: "18rem",
+  },
 });
 
 const StyledCardContent = styled(CardContent)({
@@ -346,18 +355,3 @@ const StyledEditBox = styled(Box)({
     justifyContent: "center",
   },
 });
-
-// const StyledLabel = styled(Typography)({
-//   color: "white",
-//   fontWeight: "bold",
-// });
-
-// const StyledValue = styled(Typography)({
-//   color: "white",
-//   fontStyle: "italic",
-//   "@media (max-width: 600px)": {
-//     whiteSpace: "nowrap",
-//     overflow: "hidden",
-//     textOverflow: "ellipsis",
-//   },
-// })

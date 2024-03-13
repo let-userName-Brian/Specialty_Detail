@@ -33,9 +33,11 @@ export type Service = {
   id: number;
   name: string;
   description: string;
-  cost: number;
+  cost: string;
   image: string;
   imageURL: string;
+  additionalImage?: string;
+  additionalImageURL?: string;
 };
 
 export interface ServicesProps {

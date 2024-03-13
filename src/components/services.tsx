@@ -4,13 +4,42 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { CardActionArea } from "@mui/material";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { renderLoading } from "../helpers/loading-skeletons";
 import { ServicesProps } from "../App";
 
 const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
   const { currentServices } = props;
 
+  const [currentImages, setCurrentImages] = useState<{
+    [index: number]: string;
+  }>({});
+
+  useEffect(() => {
+    const intervalIds: { [index: number]: NodeJS.Timeout } = {};
+
+    currentServices.forEach((service, index) => {
+      if (service.additionalImageURL) {
+        setCurrentImages((prev) => ({ ...prev, [index]: service.imageURL }));
+        intervalIds[index] = setInterval(() => {
+          console.log("Toggling image");
+          setCurrentImages((prev) => {
+            // Ensure that we have a valid URL before toggling
+            const nextImage =
+              prev[index] === service.imageURL && service.additionalImageURL
+                ? service.additionalImageURL
+                : service.imageURL;
+            return { ...prev, [index]: nextImage };
+          });
+        }, 3000);
+      }
+    });
+
+    // Clear intervals on component unmount
+    return () => {
+      Object.values(intervalIds).forEach(clearInterval);
+    };
+  }, [currentServices]);
   return (
     <StyledServicesWrapper ref={reference}>
       {currentServices.length === 0 ? (
@@ -20,13 +49,16 @@ const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
           {currentServices.map((service, index: number) => (
             <StyledCard key={index}>
               <StyledCardActionArea disableRipple>
-                <StyledCardMedia image={service.imageURL} />
+                <StyledCardMedia
+                  image={currentImages[index] || service.imageURL}
+                />
+                {/* before and after text on rotating image */}
                 <StyledCardContent>
                   <StyledCardTitle gutterBottom>{service.name}</StyledCardTitle>
                   <StyledCardDescription>
                     {service.description}
                   </StyledCardDescription>
-                  <StyledCardPrice>${service.cost}</StyledCardPrice>
+                  <StyledCardPrice>{service.cost}</StyledCardPrice>
                 </StyledCardContent>
               </StyledCardActionArea>
             </StyledCard>
@@ -40,16 +72,16 @@ const Services = forwardRef<HTMLElement, ServicesProps>((props, reference) => {
 export default Services;
 
 const StyledServicesWrapper = styled(Box)({
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(20%, 1fr))",
-  gridAutoRows: "auto",
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "center",
   gap: "3rem",
   padding: "2rem",
   width: "100%",
   height: "auto",
   marginTop: "2rem",
   "@media (max-width: 600px)": {
-    gridTemplateColumns: "1fr",
     padding: "1rem",
     marginTop: "2rem",
   },
@@ -57,8 +89,8 @@ const StyledServicesWrapper = styled(Box)({
 
 const StyledCard = styled(Card)({
   padding: "1rem",
-  flex: "1 1 auto",
-  minHeight: "clamp(400px, 50vh, 500px)",
+  minHeight: "clamp(25rem, 50vh, 25rem)",
+  width: "clamp(25rem, 50vw, 15rem)",
   backgroundColor: "rgba(255, 255, 255, 0.1)",
   border: "1px solid rgba(255, 255, 255, 0.2)",
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
@@ -67,6 +99,9 @@ const StyledCard = styled(Card)({
   transition: "transform 0.2s",
   "&:hover": {
     transform: "scale(1.05)",
+  },
+  "@media (max-width: 600px)": {
+    width: "95%",
   },
 });
 
@@ -83,11 +118,15 @@ const StyledCardActionArea = styled(CardActionArea)({
 });
 
 const StyledCardMedia = styled(CardMedia)({
-  width: "100%",
-  height: "90%",
+  width: "clamp(23rem, 50vw, 23rem)",
+  height: "clamp(15rem, 50vw, 20rem)",
   borderRadius: "3rem",
   border: "1px solid rgba(255, 255, 255, 0.2)",
   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  "@media (max-width: 600px)": {
+    width: "95%",
+    height: "18rem",
+  },
 });
 
 const StyledCardContent = styled(CardContent)({
@@ -129,3 +168,23 @@ const StyledCardPrice = styled(Typography)({
     fontSize: "1.2rem",
   },
 });
+
+/**
+ * @keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.image-fade-out {
+  animation: fadeOut 1s forwards;
+}
+
+.image-fade-in {
+  animation: fadeIn 1s forwards;
+}
+ */
